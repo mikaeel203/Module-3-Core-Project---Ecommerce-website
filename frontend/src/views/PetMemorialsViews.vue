@@ -36,7 +36,7 @@
             <!-- Product cards dynamically generated from products data -->
             <div v-for="product in products" :key="product.id" class="product-card">
               <div class="product-image">
-                <img :src="product.image" :alt="product.name">
+                <img :src="require('../assets/HomepagePetMemo.png')" :alt="product.name">
               </div>
               <div class="product-details">
                 <h3>{{ product.name }}</h3>

@@ -14,7 +14,8 @@
         </nav>
         <div class="header-icons">
           <i class="bi bi-search"></i>
-          <i class="bi bi-cart-fill"></i>
+          <router-link to="/cart"><i class="bi bi-cart-fill"></i></router-link>
+          
         </div>
       </div>
     </header>

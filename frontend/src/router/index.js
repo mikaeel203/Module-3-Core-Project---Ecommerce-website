@@ -4,6 +4,8 @@ import CasketView from '@/views/CasketView.vue'
 import CoffinView from '@/views/CoffinView.vue'
 import UrnsView from '@/views/UrnsView.vue'
 import PetMemorialsViews from '@/views/PetMemorialsViews.vue'
+import CartView from '@/views/CartView.vue'
+import ProductDetailsComp from '@/components/ProductDetailsComp.vue'
 
 const routes = [
   {
@@ -26,6 +28,14 @@ const routes = [
   {
     path: '/petmemorials',
     component: PetMemorialsViews
+  },
+  {
+    path: '/cart',
+    component: CartView
+  },
+  {
+    path: '/details',
+    component: ProductDetailsComp
   },
 ]
 
