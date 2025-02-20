@@ -1,7 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 // import routes that we exported
-import userRoutes from './routes/userRoutes.js';
+// import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/productsRoutes.js'
 const PORT = process.env.PORT ||3000
 const app = express()
 app.use(cors({
@@ -9,7 +10,8 @@ app.use(cors({
 }))
 app.use(express.json())
 // path , imported file
-app.use('/users', userRoutes);
+// app.use('/users', userRoutes);
+app.use('/products', productRoutes);
 
 
 app.listen(PORT,()=>{
