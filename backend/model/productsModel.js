@@ -5,4 +5,9 @@ const getProductId = async (id) => {
     return data
 }
 
-export {getProductId}
+const getProducts = async () => {
+    let [data] = await pool.query("SELECT * FROM `eternal_rest_db`.`products`")
+    return data
+}
+
+export {getProductId,getProducts}
