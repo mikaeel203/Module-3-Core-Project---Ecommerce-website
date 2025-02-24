@@ -27,10 +27,12 @@
 
 <script>
 import ProductCard from '@/components/ProductCard.vue';
+import { API_BASE_URL } from '@/config';
 
 export default {
   components: {
     ProductCard,
+
   },
   data() {
     return {
@@ -39,7 +41,7 @@ export default {
   },
   async created() {
     // Fetch coffins from the backend
-    const response = await fetch('/api/products?category=Coffin');
+    const response = await fetch(`${API_BASE_URL}/products?category=Coffin`);
     this.products = await response.json();
   },
   methods: {

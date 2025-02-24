@@ -27,6 +27,7 @@
 
 <script>
 import ProductCard from '@/components/ProductCard.vue';
+import { API_BASE_URL } from '@/config';
 
 export default {
   components: {
@@ -39,7 +40,7 @@ export default {
   },
   async created() {
     // Fetch pet memorials from the backend
-    const response = await fetch('/api/products?category=Pet Memorial');
+    const response = await fetch(`${API_BASE_URL}/products?category=Pet Memorial`);
     this.products = await response.json();
   },
   

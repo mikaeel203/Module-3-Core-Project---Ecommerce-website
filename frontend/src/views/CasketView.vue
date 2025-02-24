@@ -1,6 +1,5 @@
 <template>
   <div class="catalog-page">
-    <!-- Header is already included in App.vue -->
     <!-- Back Navigation -->
     <div class="container">
       <div class="back-nav">
@@ -30,15 +29,13 @@
         </div>
       </div>
     </section>
-
-    <!-- Testimonials and Footer Sections -->
-    <!-- ... (keep existing code) ... -->
   </div>
 </template>
 
 <script>
 import ProductCard from '@/components/ProductCard.vue';
 import SearchAndFilter from '@/components/SearchAndFilter.vue';
+import { API_BASE_URL } from '@/config';
 
 export default {
   components: {
@@ -57,6 +54,9 @@ export default {
   computed: {
     filteredProducts() {
       return this.products.filter((product) => {
+        // Safeguard: Ensure product.name is defined
+        if (!product.name) return false;
+
         // Filter by search query
         const matchesSearch = product.name
           .toLowerCase()
@@ -77,10 +77,18 @@ export default {
     },
   },
   async created() {
-    // Fetch caskets from the backend
-    const response = await fetch('/api/products?category=Casket');
-    this.products = await response.json();
-  },
+  try {
+    const response = await fetch(`${API_BASE_URL}/products?category=Casket`);
+    if (response.ok) {
+      this.products = await response.json();
+      console.log('Fetched products:', this.products); // Debugging: Log fetched products
+    } else {
+      console.error('Failed to fetch products');
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+},
   methods: {
     handleSearch(query) {
       this.searchQuery = query;
