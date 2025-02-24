@@ -8,6 +8,7 @@ import CartView from '@/views/CartView.vue';
 import ProductDetailsComp from '@/components/ProductDetailsComp.vue';
 import Login from '@/views/LoginView.vue';
 import Register from '@/views/RegisterView.vue';
+import Profile from '@/views/ProfileView.vue';
 
 const routes = [
   { path: '/', component: HomeView },
@@ -19,6 +20,7 @@ const routes = [
   { path: '/details/:id', component: ProductDetailsComp },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
+  { path: "/profile", component: Profile, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

@@ -13,7 +13,7 @@
         </nav>
         <div class="header-icons">
           <router-link to="/cart"><i class="bi bi-cart-fill"></i></router-link>
-          <router-link to="/login"><i class="bi bi-person-circle"></i></router-link>
+          <router-link to="/profile"><i class="bi bi-person-circle"></i></router-link>
         </div>
       </div>
     </header>
