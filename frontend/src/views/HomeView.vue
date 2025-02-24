@@ -96,54 +96,7 @@
       </div>
     </section>
 
-    <!-- Footer - Now Full-Width -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-sections">
-          <div class="footer-section">
-            <h3>Eternal Rest</h3>
-            <p>Providing dignified memorials for your loved ones since 2002.</p>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Quick Links</h3>
-            <ul>
-              <li><a href="#">Home</a></li>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Catalog</a></li>
-              <li><a href="#">FAQ</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Contact Us</h3>
-            <p><i class="bi bi-telephone-fill"></i> (123) 123-4567</p>
-            <p><i class="bi bi-envelope-at-fill"></i> info@eternalrest.com</p>
-          </div>
 
-          <div class="footer-section">
-            <h3>Follow Us</h3>
-            <ul>
-              <li><a href="#"><i class="bi bi-facebook"></i> Facebook</a></li>
-              <li><a href="#"><i class="bi bi-twitter"></i> Twitter</a></li>
-              <li><a href="#"><i class="bi bi-instagram"></i> Instagram</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Newsletter</h3>
-            <div class="newsletter-form">
-              <input type="email" placeholder="Your email">
-              <button class="btn subscribe-btn">Subscribe</button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="copyright">
-          <p>&copy; {{ currentYear }} Eternal Rest. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
