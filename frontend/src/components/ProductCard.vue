@@ -1,32 +1,33 @@
 <template>
-    <router-link :to="`/details/${product.product_id}`" class="product-card">
-      <div class="product-image">
-        <img :src="product.image" :alt="product.name" />
-      </div>
-      <div class="product-details">
-        <h3>{{ product.name }}</h3>
-        <p>{{ product.description }}</p>
-        <p class="price">${{ formatPrice(product.price) }}</p>
-        <span class="view-details">View More Details <i class="bi bi-arrow-right"></i></span>
-      </div>
-    </router-link>
-  </template>
-  <script>
-  export default {
-    props: {
-      product: {
-        type: Object,
-        required: true,
-      },
+  <router-link :to="`/details/${product.product_id}`" class="product-card">
+    <div class="product-image">
+      <img :src="product.image" :alt="product.name" />
+    </div>
+    <div class="product-details">
+      <h3>{{ product.name }}</h3>
+      <p>{{ product.description }}</p>
+      <p class="price">${{ formatPrice(product.price) }}</p>
+      <span class="view-details">View More Details <i class="bi bi-arrow-right"></i></span>
+    </div>
+  </router-link>
+</template>
+
+<script>
+export default {
+  props: {
+    product: {
+      type: Object,
+      required: true,
     },
-    methods: {
-      formatPrice(price) {
-        return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-      },
+  },
+  methods: {
+    formatPrice(price) {
+      return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     },
-  };
-  </script>
-  
+  },
+};
+</script>
+
   <style scoped>
   .product-card {
     background-color: white;

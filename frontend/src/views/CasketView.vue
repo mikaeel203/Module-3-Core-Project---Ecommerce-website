@@ -21,11 +21,7 @@
         <p class="subtitle">Browse our carefully curated selection of caskets.</p>
 
         <div class="product-grid">
-          <ProductCard
-            v-for="product in filteredProducts"
-            :key="product.product_id"
-            :product="product"
-          />
+          <ProductCard v-for="product in products" :key="product.product_id" :product="product" />
         </div>
       </div>
     </section>

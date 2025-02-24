@@ -21,46 +21,13 @@
         <h1 class="product-title">{{ product.name }}</h1>
         <div class="product-price">${{ formatPrice(product.price) }}</div>
 
-        <!-- Product Options -->
-        <div class="product-options">
-          <div class="option-group">
-            <label>Wood Type:</label>
-            <select v-model="selectedWoodType" class="option-select">
-              <option v-for="type in product.woodTypes" :key="type" :value="type">
-                {{ type }}
-              </option>
-            </select>
-          </div>
-
-          <div class="option-group">
-            <label>Interior Color:</label>
-            <div class="color-options">
-              <div
-                v-for="color in product.interiorColors"
-                :key="color.value"
-                class="color-option"
-                :class="{ selected: selectedColor === color.value }"
-                :style="{ backgroundColor: color.hex }"
-                @click="selectedColor = color.value"
-              ></div>
-            </div>
-          </div>
-        </div>
-
         <!-- Add to Cart Button -->
         <button class="add-to-cart-btn" @click="addToCart">Add to Cart</button>
-        <button @click="addToWishlist" class="wishlist-btn">Add to Wishlist</button>
 
         <!-- Product Description -->
         <div class="product-description">
           <h2>Product Description</h2>
           <p>{{ product.description }}</p>
-
-          <ul class="feature-list">
-            <li v-for="(feature, index) in product.features" :key="index">
-              <span class="check-icon">✓</span> {{ feature }}
-            </li>
-          </ul>
         </div>
       </div>
     </div>
@@ -71,21 +38,18 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
 import { API_BASE_URL } from '@/config';
+
 export default {
-  name: 'ProductDetail',
   props: {
-    productId: {
+    id: {
       type: [String, Number],
       required: true,
     },
   },
   data() {
     return {
-      product: null,
-      selectedWoodType: null,
-      selectedColor: null,
+      product: null, // Product details
     };
   },
   async created() {
@@ -93,34 +57,28 @@ export default {
   },
   methods: {
     async fetchProductDetails() {
-      const response = await fetch(`${API_BASE_URL}/products/${this.productId}`);
-      this.product = await response.json();
+      try {
+        const response = await fetch(`${API_BASE_URL}/products/${this.id}`);
+        if (response.ok) {
+          this.product = await response.json();
+        } else {
+          console.error('Failed to fetch product details');
+        }
+      } catch (error) {
+        console.error('Error fetching product details:', error);
+      }
     },
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     },
-    methods: {
-      
-  addToCart() {
-    const productToAdd = {
-      id: this.product.product_id,
-      name: this.product.name,
-      price: this.product.price,
-      image: this.product.image,
-      quantity: 1,
-    };
-    this.$store.dispatch('cart/addToCart', productToAdd);
-    alert('Product added to cart');
-  },
-  ...mapActions('wishlist', ['addToWishlist']),
-    addToWishlist() {
-      this.addToWishlist(this.product);
-      alert('Product added to wishlist');
-    }
-},
+    addToCart() {
+      // Add to cart logic
+      alert('Product added to cart');
+    },
   },
 };
 </script>
+
 
 <style scoped>
 .wishlist-btn {
