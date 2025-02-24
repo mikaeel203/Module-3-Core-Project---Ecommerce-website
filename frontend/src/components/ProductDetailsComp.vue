@@ -72,6 +72,7 @@
 
 <script>
 import { mapActions } from 'vuex';
+import { API_BASE_URL } from '@/config';
 export default {
   name: 'ProductDetail',
   props: {
@@ -92,18 +93,8 @@ export default {
   },
   methods: {
     async fetchProductDetails() {
-      // Fetch product details from the backend
-      const response = await fetch(`/api/products/${this.productId}`);
-      const data = await response.json();
-      this.product = data;
-
-      // Set default selections
-      if (this.product.woodTypes && this.product.woodTypes.length) {
-        this.selectedWoodType = this.product.woodTypes[0];
-      }
-      if (this.product.interiorColors && this.product.interiorColors.length) {
-        this.selectedColor = this.product.interiorColors[0].value;
-      }
+      const response = await fetch(`${API_BASE_URL}/products/${this.productId}`);
+      this.product = await response.json();
     },
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
