@@ -29,7 +29,10 @@
       <!-- Submit Button -->
       <button type="submit" class="login-btn">Login</button>
     </form>
-
+    <p class="login-link">
+        Already have an account? <router-link to="/register">Register here</router-link>.
+      </p>
+  
     <!-- Error Message -->
     <p v-if="error" class="error-message">{{ error }}</p>
   </div>
