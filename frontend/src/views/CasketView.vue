@@ -1,259 +1,101 @@
 <template>
-    <div class="catalog-page">
-      <!-- Header -->
-      <header class="header">
-        <div class="container">
-          <div class="logo">Eternal Rest</div>
-          <nav class="nav-menu">
-            <ul>
-              <li><a href="#">Home</a></li>
-              <li><a href="#">Products</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Contact</a></li>
-            </ul>
-          </nav>
-          <div class="header-icons">
-            <i class="fas fa-search"></i>
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-        </div>
-      </header>
-  
-      <!-- Back Navigation -->
+  <div class="catalog-page">
+    <!-- Header is already included in App.vue -->
+    <!-- Back Navigation -->
+    <div class="container">
+      <div class="back-nav">
+        <router-link to="/" class="back-link"><i class="fas fa-chevron-left"></i> Previous</router-link>
+      </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <SearchAndFilter
+      @search="handleSearch"
+      @filter-category="handleCategoryFilter"
+      @filter-price="handlePriceFilter"
+    />
+
+    <!-- Product Catalog Section -->
+    <section class="catalog">
       <div class="container">
-        <div class="back-nav">
-          <a href="#" class="back-link"><i class="fas fa-chevron-left"></i> Previous</a>
+        <h1>Our Caskets</h1>
+        <p class="subtitle">Browse our carefully curated selection of caskets.</p>
+
+        <div class="product-grid">
+          <ProductCard
+            v-for="product in filteredProducts"
+            :key="product.product_id"
+            :product="product"
+          />
         </div>
       </div>
-  
-      <!-- Product Catalog Section -->
-      <section class="catalog">
-        <div class="container">
-          <h1>Our Caskets</h1>
-          <p class="subtitle">Browse our carefully curated selection of memorial products</p>
-          
-          <div class="product-grid">
-            <!-- Product cards dynamically generated from products data -->
-            <div v-for="product in products" :key="product.id" class="product-card">
-              <div class="product-image">
-                <img :src='require("../assets/HomepageCasket.png")' :alt="product.name">
-              </div>
-              <div class="product-details">
-                <h3>{{ product.name }}</h3>
-                <p>{{ product.description }}</p>
-                <p class="price">R{{ formatPrice(product.price) }}</p>
-                <a href="#" class="view-details">View More Details <i class="fas fa-arrow-right"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-  
-      <!-- Testimonials Section -->
-      <section class="testimonials">
-        <div class="container">
-          <h2>What Our Clients Say</h2>
-          
-          <div class="testimonial-grid">
-            <div v-for="testimonial in testimonials" :key="testimonial.id" class="testimonial-card">
-              <div class="testimonial-header">
-                <img :src="testimonial.image" :alt="testimonial.name" class="client-image">
-                <div class="client-info">
-                  <h4>{{ testimonial.name }}</h4>
-                  <p class="location">{{ testimonial.location }}</p>
-                </div>
-              </div>
-              <p class="quote">"{{ testimonial.quote }}"</p>
-            </div>
-          </div>
-        </div>
-      </section>
-  
-      <!-- Footer -->
-      <footer class="footer">
-        <div class="container">
-          <div class="footer-sections">
-            <div class="footer-section">
-              <h3>Eternal Rest</h3>
-              <p>Providing dignified memorials for your loved ones since 2000.</p>
-            </div>
-            
-            <div class="footer-section">
-              <h3>Quick Links</h3>
-              <ul>
-                <li><a href="#">Products</a></li>
-                <li><a href="#">About Us</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">FAQ</a></li>
-              </ul>
-            </div>
-            
-            <div class="footer-section">
-              <h3>Contact Us</h3>
-              <p><i class="fas fa-phone"></i> (555) 123-4567</p>
-              <p><i class="fas fa-envelope"></i> info@eternalrest.com</p>
-            </div>
-            
-            <div class="footer-section">
-              <h3>Newsletter</h3>
-              <div class="newsletter-form">
-                <input type="email" placeholder="Your email">
-                <button class="btn subscribe-btn">Subscribe</button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="copyright">
-            <p>© 2025 Eternal Rest. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'CatalogPage',
-    data() {
-      return {
-        // Sample product data - would be fetched from backend in real application
-        products: [
-          {
-            id: 1,
-            name: 'Casket Name1',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: ''
-          },
-          {
-            id: 2,
-            name: 'Casket Name2',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 3,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 4,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 5,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 6,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 7,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 8,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 9,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 10,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 11,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-          {
-            id: 12,
-            name: 'Casket Name',
-            description: 'A short description about the casket',
-            price: 10000.00,
-            image: '../assets/HomepageCasket.png'
-          },
-        ],
-        // Sample testimonial data - would also be fetched from backend
-        testimonials: [
-          {
-            id: 1,
-            name: 'Sarah Johnson',
-            location: 'New York',
-            quote: 'The quality and craftsmanship exceeded our expectations. The staff was compassionate and helpful throughout the process.',
-            image: '/images/client1.jpg'
-          },
-          {
-            id: 2,
-            name: 'Michael Smith',
-            location: 'Chicago',
-            quote: 'We were touched by the attention to detail and the beautiful customization options available for our father\'s memorial.',
-            image: '/images/client2.jpg'
-          },
-          {
-            id: 3,
-            name: 'Emily Davis',
-            location: 'Los Angeles',
-            quote: 'The pet memorial we received was beautiful and helped us honor our beloved companion in a meaningful way.',
-            image: '/images/client3.jpg'
-          }
-        ]
-      }
+    </section>
+
+    <!-- Testimonials and Footer Sections -->
+    <!-- ... (keep existing code) ... -->
+  </div>
+</template>
+
+<script>
+import ProductCard from '@/components/ProductCard.vue';
+import SearchAndFilter from '@/components/SearchAndFilter.vue';
+
+export default {
+  components: {
+    ProductCard,
+    SearchAndFilter,
+  },
+  data() {
+    return {
+      products: [], // All products fetched from the backend
+      searchQuery: '', // Search term
+      selectedCategory: '', // Selected category filter
+      minPrice: null, // Minimum price filter
+      maxPrice: null, // Maximum price filter
+    };
+  },
+  computed: {
+    filteredProducts() {
+      return this.products.filter((product) => {
+        // Filter by search query
+        const matchesSearch = product.name
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase());
+
+        // Filter by category
+        const matchesCategory = this.selectedCategory
+          ? product.category === this.selectedCategory
+          : true;
+
+        // Filter by price range
+        const matchesPrice =
+          (this.minPrice ? product.price >= this.minPrice : true) &&
+          (this.maxPrice ? product.price <= this.maxPrice : true);
+
+        return matchesSearch && matchesCategory && matchesPrice;
+      });
     },
-    methods: {
-      // Format price with commas
-      formatPrice(price) {
-        return price.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-      },
-      // Method to fetch products from backend API
-      fetchProducts() {
-        // This would be an actual API call in production
-        // Example:
-        // axios.get('/api/products')
-        //   .then(response => {
-        //     this.products = response.data;
-        //   })
-        //   .catch(error => {
-        //     console.error('Error fetching products:', error);
-        //   });
-      }
+  },
+  async created() {
+    // Fetch caskets from the backend
+    const response = await fetch('/api/products?category=Casket');
+    this.products = await response.json();
+  },
+  methods: {
+    handleSearch(query) {
+      this.searchQuery = query;
     },
-    created() {
-      // Lifecycle hook to fetch data when component is created
-      // this.fetchProducts();
-    }
-  }
-  </script>
-  
+    handleCategoryFilter(category) {
+      this.selectedCategory = category;
+    },
+    handlePriceFilter({ min, max }) {
+      this.minPrice = min;
+      this.maxPrice = max;
+    },
+  },
+};
+</script>
+
   <style scoped>
   /* General Styles */
   * {
