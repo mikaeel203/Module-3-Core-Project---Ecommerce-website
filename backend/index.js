@@ -3,6 +3,7 @@ import cors from 'cors'
 // import routes that we exported
 import productRoutes from './routes/productsRoutes.js'
 import customRoutes from './routes/customRoutes.js'
+import orderRoutes from './routes/orderRoutes.js'
 const PORT = process.env.PORT ||3000
 const app = express()
 app.use(cors({
@@ -13,6 +14,7 @@ app.use(express.json())
 // app.use('/users', userRoutes);
 app.use('/products', productRoutes);
 app.use('/custom',customRoutes);
+app.use('/orders',orderRoutes)
 
 
 app.listen(PORT,()=>{
