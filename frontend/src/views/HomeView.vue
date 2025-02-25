@@ -1,25 +1,6 @@
 <template>
   <div class="memorial-site">
-    <!-- Header -->
-    <header class="header">
-      <div class="container">
-        <div class="logo">Eternal Rest</div>
-        <nav class="nav-menu">
-          <ul>
-            <li><a href="#">Home</a></li>
-            <li><a href="#">Products</a></li>
-            <li><a href="#">About</a></li>
-            <li><a href="#">Contact</a></li>
-          </ul>
-        </nav>
-        <div class="header-icons">
-          <i class="bi bi-search"></i>
-          <router-link to="/cart"><i class="bi bi-cart-fill"></i></router-link>
-          
-        </div>
-      </div>
-    </header>
-
+    <!-- Header is already included in App.vue -->
     <!-- Hero Section -->
     <section class="hero">
       <div class="container">
@@ -29,7 +10,7 @@
           <button class="btn primary-btn">View Collections</button>
         </div>
         <div class="hero-image">
-          <img src="../assets/heroimage.png" alt="Dignified memorial casket with flowers">
+          <img src="../assets/heroimage.png" alt="Dignified memorial casket with flowers" />
         </div>
       </div>
     </section>
@@ -39,36 +20,39 @@
       <div class="container">
         <h2>Our Collections</h2>
         <p>Browse our carefully curated selection of memorial products:</p>
-        
+
         <div class="collection-grid">
-          <div class="collection-card">
-            <img src="../assets/HomepageCasket.png" alt="Caskets">
+          <!-- Caskets Card -->
+          <router-link to="/caskets" class="collection-card">
+            <img src="../assets/HomepageCasket.png" alt="Caskets" />
             <h3>Caskets</h3>
-            
             <p>Handcrafted with dignity and respect.</p>
-            <router-link class="view-collection" to="/caskets">View Collection →</router-link>
-          </div>
-          
-          <div class="collection-card">
-            <img src="../assets/HomepageCoffin.png" alt="Coffins">
+            <span class="view-collection">View Collection →</span>
+          </router-link>
+
+          <!-- Coffins Card -->
+          <router-link to="/coffins" class="collection-card">
+            <img src="../assets/HomepageCoffin.png" alt="Coffins" />
             <h3>Coffins</h3>
             <p>Traditional and contemporary designs.</p>
-            <router-link class="view-collection" to="/coffins">View Collection →</router-link>
-          </div>
-          
-          <div class="collection-card">
-            <img src="../assets/HomepageUrn.png" alt="Urns">
+            <span class="view-collection">View Collection →</span>
+          </router-link>
+
+          <!-- Urns Card -->
+          <router-link to="/urns" class="collection-card">
+            <img src="../assets/HomepageUrn.png" alt="Urns" />
             <h3>Urns</h3>
             <p>Beautiful, artful memorials for ashes.</p>
-            <router-link class="view-collection" to="/urns">View Collection →</router-link>
-          </div>
-          
-          <div class="collection-card">
-            <img src="../assets/HomepagePetMemo.png" alt="Pet Memorials">
+            <span class="view-collection">View Collection →</span>
+          </router-link>
+
+          <!-- Pet Memorials Card -->
+          <router-link to="/petmemorials" class="collection-card">
+            <img src="../assets/HomepagePetMemo.png" alt="Pet Memorials" />
             <h3>Pet Memorials</h3>
             <p>Honor your beloved family pet.</p>
-            <router-link class="view-collection" to="/petmemorials">View Collection →</router-link>
-          </div>
+            <span class="view-collection">View Collection →</span>
+          </router-link>
         </div>
       </div>
     </section>
@@ -112,54 +96,7 @@
       </div>
     </section>
 
-    <!-- Footer - Now Full-Width -->
-    <footer class="footer">
-      <div class="container">
-        <div class="footer-sections">
-          <div class="footer-section">
-            <h3>Eternal Rest</h3>
-            <p>Providing dignified memorials for your loved ones since 2002.</p>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Quick Links</h3>
-            <ul>
-              <li><a href="#">Home</a></li>
-              <li><a href="#">About Us</a></li>
-              <li><a href="#">Catalog</a></li>
-              <li><a href="#">FAQ</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Contact Us</h3>
-            <p><i class="bi bi-telephone-fill"></i> (123) 123-4567</p>
-            <p><i class="bi bi-envelope-at-fill"></i> info@eternalrest.com</p>
-          </div>
 
-          <div class="footer-section">
-            <h3>Follow Us</h3>
-            <ul>
-              <li><a href="#"><i class="bi bi-facebook"></i> Facebook</a></li>
-              <li><a href="#"><i class="bi bi-twitter"></i> Twitter</a></li>
-              <li><a href="#"><i class="bi bi-instagram"></i> Instagram</a></li>
-            </ul>
-          </div>
-          
-          <div class="footer-section">
-            <h3>Newsletter</h3>
-            <div class="newsletter-form">
-              <input type="email" placeholder="Your email">
-              <button class="btn subscribe-btn">Subscribe</button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="copyright">
-          <p>&copy; {{ currentYear }} Eternal Rest. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
 
