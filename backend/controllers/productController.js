@@ -65,44 +65,39 @@ export const addProduct = async (req, res) => {
 
 // Get all products with their images
 export const getProducts = async (req, res) => {
-    const { category, minPrice, maxPrice, search } = req.query;
-    let query = `
-        SELECT p.*, pi.image_url
-        FROM products p
-        LEFT JOIN product_images pi ON p.product_id = pi.product_id
-        WHERE 1=1
-    `;
+  try {
+      const [products] = await db.query(`
+          SELECT p.*, pi.image_url
+          FROM products p
+          LEFT JOIN product_images pi ON p.product_id = pi.product_id
+      `);
 
-    if (category) query += ` AND p.category = '${category}'`;
-    if (minPrice) query += ` AND p.price >= ${minPrice}`;
-    if (maxPrice) query += ` AND p.price <= ${maxPrice}`;
-    if (search) query += ` AND p.title LIKE '%${search}%'`;
+      // Group images by product and convert to absolute URLs
+      const groupedProducts = products.reduce((acc, row) => {
+          if (!acc[row.product_id]) {
+              acc[row.product_id] = {
+                  product_id: row.product_id,
+                  title: row.title,
+                  description: row.description,
+                  price: row.price,
+                  color: row.color,
+                  wood_type: row.wood_type,
+                  category: row.category,
+                  images: []
+              };
+          }
+          if (row.image_url) {
+              // Convert relative path to absolute URL
+              const absoluteUrl = `${req.protocol}://${req.get('host')}${row.image_url}`;
+              acc[row.product_id].images.push(absoluteUrl);
+          }
+          return acc;
+      }, {});
 
-    try {
-        const [products] = await db.query(query);
-        const groupedProducts = products.reduce((acc, row) => {
-            if (!acc[row.product_id]) {
-                acc[row.product_id] = {
-                    product_id: row.product_id,
-                    title: row.title,
-                    description: row.description,
-                    price: row.price,
-                    color: row.color,
-                    wood_type: row.wood_type,
-                    category: row.category,
-                    images: []
-                };
-            }
-            if (row.image_url) {
-                acc[row.product_id].images.push(row.image_url);
-            }
-            return acc;
-        }, {});
-
-        res.status(200).json(Object.values(groupedProducts));
-    } catch (err) {
-        res.status(500).send(err);
-    }
+      res.status(200).json(Object.values(groupedProducts));
+  } catch (err) {
+      res.status(500).send(err);
+  }
 };
 
 // Get a single product by ID with its images
