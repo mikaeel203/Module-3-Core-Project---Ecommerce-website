@@ -6,7 +6,7 @@
     </div>
     <div class="product-details">
       <h3>{{ product.title }}</h3>
-      <p>{{ product.description }}</p>
+      <!-- <p>{{ product.description }}</p> -->
       <p class="price">${{ formatPrice(product.price) }}</p>
       <span class="view-details">View More Details <i class="bi bi-arrow-right"></i></span>
     </div>
