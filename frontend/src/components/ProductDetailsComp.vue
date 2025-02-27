@@ -68,26 +68,25 @@ export default {
   data() {
     return {
       product: null, // Product details
-      mainImage: '', // Currently displayed main image
+      // mainImage: '', // Currently displayed main image
     };
   },
   async created() {
-    await this.fetchProductDetails();
-  },
+  const productId = this.$route.params.id;
+  try {
+    const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+    if (response.ok) {
+      this.product = await response.json();
+      console.log("Product Data:", this.product); // Debugging
+    } else {
+      console.error("Failed to fetch product details");
+    }
+  } catch (error) {
+    console.error("Error fetching product details:", error);
+  }
+},
+
   methods: {
-    async fetchProductDetails() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/products/${this.id}`);
-        if (response.ok) {
-          this.product = await response.json();
-          this.mainImage = this.product.images[0]; // Set the first image as the main image
-        } else {
-          console.error('Failed to fetch product details');
-        }
-      } catch (error) {
-        console.error('Error fetching product details:', error);
-      }
-    },
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     },

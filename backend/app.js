@@ -13,11 +13,15 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:8080', // Replace with your frontend URL
+    credentials: true,
+  }));
 app.use(express.json());
 
 // Serve static files (e.g., uploaded images)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 
 // Routes
 app.use('/api/auth', authRoutes);

@@ -40,10 +40,17 @@ export default {
     };
   },
   async created() {
-    // Fetch coffins from the backend
+  try {
     const response = await fetch(`${API_BASE_URL}/products?category=Coffin`);
-    this.products = await response.json();
-  },
+    if (response.ok) {
+      this.products = await response.json();
+    } else {
+      console.error('Failed to fetch products');
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+},
   methods: {
     handleSearch(query) {
       this.searchQuery = query;

@@ -39,10 +39,17 @@ export default {
     };
   },
   async created() {
-    // Fetch pet memorials from the backend
+  try {
     const response = await fetch(`${API_BASE_URL}/products?category=Pet Memorial`);
-    this.products = await response.json();
-  },
+    if (response.ok) {
+      this.products = await response.json();
+    } else {
+      console.error('Failed to fetch products');
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+},
   
   methods: {
     handleSearch(query) {

@@ -122,8 +122,9 @@ export const getProductById = async (req, res) => {
             color: product[0].color,
             wood_type: product[0].wood_type,
             category: product[0].category,
-            images: product.map(row => row.image_url).filter(url => url !== null)
-        };
+            images: product.map(row => `${req.protocol}://${req.get('host')}${row.image_url}`).filter(url => url !== null)
+          };
+          
 
         res.status(200).json(productData);
     } catch (err) {
