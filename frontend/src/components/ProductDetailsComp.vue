@@ -29,7 +29,7 @@
       <!-- Product Info -->
       <div class="product-info">
         <h1 class="product-title">{{ product.title }}</h1>
-        <div class="product-price">${{ formatPrice(product.price) }}</div>
+        <div class="product-price">R{{ formatPrice(product.price) }}</div>
 
         <!-- Add to Cart Button -->
         <button class="add-to-cart-btn" @click="addToCart">Add to Cart</button>
