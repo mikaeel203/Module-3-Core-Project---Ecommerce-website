@@ -9,16 +9,26 @@
 
     <!-- Product Details -->
     <div class="product-layout" v-if="product">
-      <!-- Product Image -->
+      <!-- Product Images -->
       <div class="product-images">
         <div class="main-image">
-          <img :src="product.image" :alt="product.name" />
+          <img :src="product.images[0]" :alt="product.title" />
+        </div>
+        <div class="thumbnail-grid">
+          <img
+            v-for="(image, index) in product.images"
+            :key="index"
+            :src="image"
+            :alt="`${product.title} image ${index + 1}`"
+            @click="setMainImage(image)"
+            class="thumbnail"
+          />
         </div>
       </div>
 
       <!-- Product Info -->
       <div class="product-info">
-        <h1 class="product-title">{{ product.name }}</h1>
+        <h1 class="product-title">{{ product.title }}</h1>
         <div class="product-price">${{ formatPrice(product.price) }}</div>
 
         <!-- Add to Cart Button -->
@@ -28,6 +38,14 @@
         <div class="product-description">
           <h2>Product Description</h2>
           <p>{{ product.description }}</p>
+        </div>
+
+        <!-- Additional Details -->
+        <div class="additional-details">
+          <h2>Additional Details</h2>
+          <p><strong>Color:</strong> {{ product.color }}</p>
+          <p><strong>Wood Type:</strong> {{ product.wood_type }}</p>
+          <p><strong>Category:</strong> {{ product.category }}</p>
         </div>
       </div>
     </div>
@@ -50,6 +68,7 @@ export default {
   data() {
     return {
       product: null, // Product details
+      mainImage: '', // Currently displayed main image
     };
   },
   async created() {
@@ -61,6 +80,7 @@ export default {
         const response = await fetch(`${API_BASE_URL}/products/${this.id}`);
         if (response.ok) {
           this.product = await response.json();
+          this.mainImage = this.product.images[0]; // Set the first image as the main image
         } else {
           console.error('Failed to fetch product details');
         }
@@ -71,6 +91,9 @@ export default {
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     },
+    setMainImage(image) {
+      this.mainImage = image; // Update the main image when a thumbnail is clicked
+    },
     addToCart() {
       // Add to cart logic
       alert('Product added to cart');
@@ -79,21 +102,11 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.wishlist-btn {
-  background-color: #ffcc00;
-  color: #333;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  margin-top: 10px;
-}
 .product-detail-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
 }
 
 .back-button {
@@ -114,14 +127,7 @@ export default {
 
 .product-layout {
   display: flex;
-  flex-direction: row;
   gap: 40px;
-}
-
-@media (max-width: 768px) {
-  .product-layout {
-    flex-direction: column;
-  }
 }
 
 .product-images {
@@ -130,17 +136,34 @@ export default {
 
 .main-image {
   width: 100%;
-  background-color: #f8f8f8;
-  margin-bottom: 15px;
-  border-radius: 4px;
+  height: 400px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
 }
 
 .main-image img {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.thumbnail:hover {
+  border-color: #3366ff;
 }
 
 .product-info {
@@ -160,99 +183,46 @@ export default {
   margin-bottom: 20px;
 }
 
-.product-options {
-  margin-bottom: 25px;
-}
-
-.option-group {
-  margin-bottom: 15px;
-}
-
-.option-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #555;
-}
-
-.option-select {
-  width: 100%;
-  max-width: 300px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-  font-size: 16px;
-}
-
-.color-options {
-  display: flex;
-  gap: 10px;
-}
-
-.color-option {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid #ddd;
-  cursor: pointer;
-}
-
-.color-option.selected {
-  border: 2px solid #333;
-  box-shadow: 0 0 0 2px white inset;
-}
-
 .add-to-cart-btn {
   width: 100%;
-  max-width: 300px;
   padding: 15px 0;
   background-color: #3366ff;
   color: white;
   border: none;
   border-radius: 4px;
   font-size: 16px;
-  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.add-to-cart-btn:hover {
-  background-color: #2855d9;
+  margin-bottom: 20px;
 }
 
 .product-description {
-  margin-top: 30px;
+  margin-bottom: 20px;
 }
 
 .product-description h2 {
   font-size: 20px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   color: #333;
 }
 
 .product-description p {
-  line-height: 1.6;
   color: #555;
-  margin-bottom: 20px;
+  line-height: 1.6;
 }
 
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.additional-details {
+  margin-top: 20px;
 }
 
-.feature-list li {
-  display: flex;
-  align-items: center;
+.additional-details h2 {
+  font-size: 20px;
   margin-bottom: 10px;
-  color: #444;
+  color: #333;
 }
 
-.check-icon {
-  color: #4CAF50;
-  margin-right: 10px;
+.additional-details p {
+  color: #555;
+  line-height: 1.6;
 }
 
 .loading {

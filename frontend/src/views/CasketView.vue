@@ -77,7 +77,6 @@ export default {
     const response = await fetch(`${API_BASE_URL}/products?category=Casket`);
     if (response.ok) {
       this.products = await response.json();
-      console.log('Fetched products:', this.products); // Debugging: Log fetched products
     } else {
       console.error('Failed to fetch products');
     }
