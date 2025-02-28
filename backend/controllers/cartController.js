@@ -11,6 +11,19 @@ export const addToCart = async (req, res) => {
   }
 };
 
+export const removeFromCart = async (req, res) => {
+  const { user_id, product_id } = req.body;
+
+  try {
+    await db.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [user_id, product_id]);
+    res.status(200).send('Removed from cart');
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+
+
 export const getCart = async (req, res) => {
   const { user_id } = req.params;
 
