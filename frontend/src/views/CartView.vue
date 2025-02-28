@@ -89,43 +89,35 @@ export default {
       }
     },
     async updateQuantity(cart_id, newQuantity) {
-      if (newQuantity < 1) return;
+  if (newQuantity < 1) return;
 
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/cart/update`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ cart_id, quantity: newQuantity }),
-        });
-
-        if (!response.ok) throw new Error('Failed to update quantity');
-
-        await this.fetchCart(); // Refresh cart after update
-      } catch (error) {
-        console.error('Error updating quantity:', error);
-      }
-    },
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, { // Use cart_id in URL
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity: newQuantity }), // Send quantity in body
+    });
+    await this.fetchCart();
+  } catch (error) {
+    console.error('Error updating quantity:', error);
+  }
+},
     async removeItem(cart_id) {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error('Failed to remove item');
-
-        await this.fetchCart(); // Refresh cart after removal
-      } catch (error) {
-        console.error('Error removing item:', error);
-      }
-    },
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, { // Use cart_id in URL
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    await this.fetchCart();
+  } catch (error) {
+    console.error('Error removing item:', error);
+  }
+},
   },
   async mounted() {
     await this.fetchCart();

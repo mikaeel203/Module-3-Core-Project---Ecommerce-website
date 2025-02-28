@@ -33,8 +33,8 @@ export const addToCart = async (req, res) => {
 };
 
 export const removeFromCart = async (req, res) => {
+  const { cart_id } = req.params; // Get cart_id from URL parameter
   const user_id = req.user.id;
-  const { cart_id } = req.params;
 
   try {
     await db.query('DELETE FROM cart WHERE user_id = ? AND cart_id = ?', [user_id, cart_id]);
@@ -74,5 +74,23 @@ export const getCart = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json([]);
+  }
+};
+
+export const updateCart = async (req, res) => {
+  const { cart_id } = req.params; // Get cart_id from URL parameter
+  const { quantity } = req.body;
+  const user_id = req.user.id;
+
+  try {
+    await db.query('UPDATE cart SET quantity = ? WHERE user_id = ? AND cart_id = ?', [
+      quantity,
+      user_id,
+      cart_id,
+    ]);
+    res.status(200).json({ message: 'Quantity updated' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update quantity.' });
   }
 };
