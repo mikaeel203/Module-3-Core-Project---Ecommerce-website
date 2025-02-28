@@ -46,7 +46,6 @@ export const removeFromCart = async (req, res) => {
 };
 
 
-
 export const getCart = async (req, res) => {
   const user_id = req.user.id;
 
@@ -60,7 +59,7 @@ export const getCart = async (req, res) => {
         p.description,
         p.price,
         p.category,
-        pi.image_url,
+        MIN(pi.image_url) AS image_url, -- Aggregate image URLs
         cu.color AS custom_color,
         cu.wood_type AS custom_wood_type
       FROM cart c
@@ -68,12 +67,12 @@ export const getCart = async (req, res) => {
       LEFT JOIN product_images pi ON p.product_id = pi.product_id
       LEFT JOIN customize cu ON c.customize_id = cu.customize_id
       WHERE c.user_id = ?
-      GROUP BY c.cart_id
+      GROUP BY c.cart_id -- Group by cart_id only
     `, [user_id]);
 
-    res.status(200).json(cartItems || []); // Ensure array response
+    res.status(200).json(cartItems || []);
   } catch (err) {
     console.error(err);
-    res.status(500).json([]); // Return empty array on error
+    res.status(500).json([]);
   }
 };

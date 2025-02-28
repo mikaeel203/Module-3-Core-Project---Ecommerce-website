@@ -1,26 +1,43 @@
 <template>
   <div class="cart-container">
-    <h2>Shopping Cart</h2>
+    <h2>Shopping Cart ({{ cartItems.length }} items)</h2>
     <div v-if="loading">Loading cart...</div>
     <template v-else>
       <div v-if="cartItems.length > 0">
         <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
           <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
-          <div class="cart-item-details">
+          <div class="item-details">
             <h3>{{ item.title }}</h3>
-            <p>R{{ item.price }}</p>
-            <p v-if="item.custom_color">Color: {{ item.custom_color }}</p>
-            <p v-if="item.custom_wood_type">Wood Type: {{ item.custom_wood_type }}</p>
+            <p>${{ formatPrice(item.price) }}</p>
+            <div class="item-options">
+              <p v-if="item.custom_color">Color: {{ item.custom_color }}</p>
+              <p v-if="item.custom_wood_type">Material: {{ item.custom_wood_type }}</p>
+            </div>
             <div class="quantity-controls">
               <button @click="updateQuantity(item.cart_id, item.quantity - 1)">-</button>
               <input type="number" v-model.number="item.quantity" min="1" />
               <button @click="updateQuantity(item.cart_id, item.quantity + 1)">+</button>
             </div>
-            <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
           </div>
+          <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
         </div>
         <div class="cart-summary">
-          <p>Total: R{{ cartTotal.toFixed(2) }}</p>
+          <div class="summary-item">
+            <p>Subtotal</p>
+            <p>${{ formatPrice(cartSubtotal) }}</p>
+          </div>
+          <div class="summary-item">
+            <p>Shipping</p>
+            <p>Free</p>
+          </div>
+          <div class="summary-item">
+            <p>Tax</p>
+            <p>${{ formatPrice(cartTax) }}</p>
+          </div>
+          <div class="summary-item total">
+            <p>Total</p>
+            <p>${{ formatPrice(cartTotal) }}</p>
+          </div>
           <router-link to="/checkout" class="checkout-btn">Proceed to Checkout</router-link>
         </div>
       </div>
@@ -31,56 +48,89 @@
 
 <script>
 import { API_BASE_URL } from '@/config';
+
 export default {
   data() {
     return {
-      loading: true
+      cartItems: [],
+      loading: true,
     };
   },
   computed: {
-    cartItems() {
-      return this.$store.state.cart || [];
+    cartSubtotal() {
+      return this.cartItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
+    },
+    cartTax() {
+      return this.cartSubtotal * 0.08; // Assuming 8% tax rate
     },
     cartTotal() {
-      return this.$store.getters.cartTotal;
-    }
-  },
-  async mounted() {
-    await this.$store.dispatch('fetchCart');
-    this.loading = false;
+      return this.cartSubtotal + this.cartTax;
+    },
   },
   methods: {
+    formatPrice(price) {
+      return parseFloat(price).toFixed(2); // Ensure price is a number and format it
+    },
+    async fetchCart() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/cart`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch cart');
+
+        this.cartItems = await response.json();
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+        this.cartItems = [];
+      }
+    },
     async updateQuantity(cart_id, newQuantity) {
       if (newQuantity < 1) return;
-      
+
       try {
-        await fetch(`${API_BASE_URL}/cart/update`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/cart/update`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({ cart_id, quantity: newQuantity })
+          body: JSON.stringify({ cart_id, quantity: newQuantity }),
         });
-        this.$store.dispatch('fetchCart');
+
+        if (!response.ok) throw new Error('Failed to update quantity');
+
+        await this.fetchCart(); // Refresh cart after update
       } catch (error) {
         console.error('Error updating quantity:', error);
       }
     },
     async removeItem(cart_id) {
       try {
-        await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+            'Authorization': `Bearer ${token}`,
+          },
         });
-        this.$store.dispatch('fetchCart');
+
+        if (!response.ok) throw new Error('Failed to remove item');
+
+        await this.fetchCart(); // Refresh cart after removal
       } catch (error) {
         console.error('Error removing item:', error);
       }
-    }
-  }
+    },
+  },
+  async mounted() {
+    await this.fetchCart();
+    this.loading = false;
+  },
 };
 </script>
 
@@ -93,31 +143,48 @@ export default {
 
 .cart-item {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+  align-items: center;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 20px;
+  padding: 20px 0;
 }
 
 .cart-item-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
+  margin-right: 20px;
 }
 
-.cart-item-details {
+.item-details {
   flex: 1;
+}
+
+.item-details h3 {
+  margin-bottom: 10px;
+}
+
+.item-options p {
+  margin: 5px 0;
+  color: #666;
 }
 
 .quantity-controls {
   display: flex;
-  gap: 10px;
   align-items: center;
+  margin-top: 10px;
+}
+
+.quantity-controls button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  cursor: pointer;
 }
 
 .quantity-controls input {
   width: 50px;
   text-align: center;
+  margin: 0 10px;
 }
 
 .remove-item {
@@ -129,15 +196,38 @@ export default {
 }
 
 .cart-summary {
-  text-align: right;
   margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.summary-item.total {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  font-weight: bold;
 }
 
 .checkout-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
   background-color: #3366ff;
   color: white;
   border: none;
-  padding: 10px 20px;
+  border-radius: 4px;
+  text-align: center;
   cursor: pointer;
+  margin-top: 20px;
+}
+
+.checkout-btn:hover {
+  background-color: #2855d9;
 }
 </style>
