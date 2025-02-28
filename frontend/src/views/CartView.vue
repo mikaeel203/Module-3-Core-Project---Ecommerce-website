@@ -1,46 +1,86 @@
 <template>
   <div class="cart-container">
     <h2>Shopping Cart</h2>
-    <div v-if="cartItems.length > 0">
-      <div v-for="item in cartItems" :key="item.id" class="cart-item">
-        <img :src="item.image" :alt="item.name" class="cart-item-image" />
-        <div class="cart-item-details">
-          <h3>{{ item.name }}</h3>
-          <p>${{ item.price.toFixed(2) }}</p>
-          <div class="quantity-controls">
-            <button @click="updateQuantity(item.id, item.quantity - 1)">-</button>
-            <input type="number" v-model.number="item.quantity" min="1" />
-            <button @click="updateQuantity(item.id, item.quantity + 1)">+</button>
+    <div v-if="loading">Loading cart...</div>
+    <template v-else>
+      <div v-if="cartItems.length > 0">
+        <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
+          <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
+          <div class="cart-item-details">
+            <h3>{{ item.title }}</h3>
+            <p>R{{ item.price }}</p>
+            <p v-if="item.custom_color">Color: {{ item.custom_color }}</p>
+            <p v-if="item.custom_wood_type">Wood Type: {{ item.custom_wood_type }}</p>
+            <div class="quantity-controls">
+              <button @click="updateQuantity(item.cart_id, item.quantity - 1)">-</button>
+              <input type="number" v-model.number="item.quantity" min="1" />
+              <button @click="updateQuantity(item.cart_id, item.quantity + 1)">+</button>
+            </div>
+            <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
           </div>
-          <button @click="removeFromCart(item.id)" class="remove-item">Remove</button>
+        </div>
+        <div class="cart-summary">
+          <p>Total: R{{ cartTotal.toFixed(2) }}</p>
+          <router-link to="/checkout" class="checkout-btn">Proceed to Checkout</router-link>
         </div>
       </div>
-      <div class="cart-summary">
-        <p>Subtotal: ${{ cartTotal.toFixed(2) }}</p>
-        <button @click="proceedToCheckout" class="checkout-btn">Proceed to Checkout</button>
-      </div>
-    </div>
-    <p v-else>Your cart is empty.</p>
+      <p v-else>Your cart is empty.</p>
+    </template>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
-
+import { API_BASE_URL } from '@/config';
 export default {
+  data() {
+    return {
+      loading: true
+    };
+  },
   computed: {
-    ...mapGetters('cart', ['cartItems', 'cartTotal']),
+    cartItems() {
+      return this.$store.state.cart || [];
+    },
+    cartTotal() {
+      return this.$store.getters.cartTotal;
+    }
+  },
+  async mounted() {
+    await this.$store.dispatch('fetchCart');
+    this.loading = false;
   },
   methods: {
-    ...mapActions('cart', ['removeFromCart', 'updateQuantity', 'clearCart']),
-    updateQuantity(productId, quantity) {
-      if (quantity < 1) return;
-      this.updateQuantity({ productId, quantity });
+    async updateQuantity(cart_id, newQuantity) {
+      if (newQuantity < 1) return;
+      
+      try {
+        await fetch(`${API_BASE_URL}/cart/update`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ cart_id, quantity: newQuantity })
+        });
+        this.$store.dispatch('fetchCart');
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+      }
     },
-    proceedToCheckout() {
-      this.$router.push('/checkout');
-    },
-  },
+    async removeItem(cart_id) {
+      try {
+        await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        this.$store.dispatch('fetchCart');
+      } catch (error) {
+        console.error('Error removing item:', error);
+      }
+    }
+  }
 };
 </script>
 

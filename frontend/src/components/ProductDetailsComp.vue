@@ -32,7 +32,7 @@
         <div class="product-price">R{{ formatPrice(product.price) }}</div>
 
         <!-- Add to Cart Button -->
-        <button class="add-to-cart-btn" @click="addToCart">Add to Cart</button>
+        <button class="add-to-cart-btn" @click="handleAddToCart">Add to Cart</button>
 
         <!-- Product Description -->
         <div class="product-description">
@@ -68,24 +68,23 @@ export default {
   data() {
     return {
       product: null, // Product details
-      // mainImage: '', // Currently displayed main image
+      loading: false, // Loading state for add to cart
     };
   },
   async created() {
-  const productId = this.$route.params.id;
-  try {
-    const response = await fetch(`${API_BASE_URL}/products/${productId}`);
-    if (response.ok) {
-      this.product = await response.json();
-      console.log("Product Data:", this.product); // Debugging
-    } else {
-      console.error("Failed to fetch product details");
+    const productId = this.$route.params.id;
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+      if (response.ok) {
+        this.product = await response.json();
+        console.log("Product Data:", this.product); // Debugging
+      } else {
+        console.error("Failed to fetch product details");
+      }
+    } catch (error) {
+      console.error("Error fetching product details:", error);
     }
-  } catch (error) {
-    console.error("Error fetching product details:", error);
-  }
-},
-
+  },
   methods: {
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
@@ -93,9 +92,41 @@ export default {
     setMainImage(image) {
       this.mainImage = image; // Update the main image when a thumbnail is clicked
     },
-    addToCart() {
-      // Add to cart logic
-      alert('Product added to cart');
+    async handleAddToCart() {
+      // Redirect to login if user is not logged in
+      if (!localStorage.getItem('token')) {
+        this.$router.push('/login');
+        return;
+      }
+
+      this.loading = true; // Show loading state
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            product_id: this.product.product_id,
+            quantity: 1, // Default quantity
+          }),
+        });
+
+        if (response.ok) {
+          alert('Product added to cart!');
+          this.$store.dispatch('fetchCart'); // Update cart in Vuex store
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to add to cart.');
+        }
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        alert('An error occurred. Please try again.');
+      } finally {
+        this.loading = false; // Hide loading state
+      }
     },
   },
 };
@@ -192,6 +223,12 @@ export default {
   font-size: 16px;
   cursor: pointer;
   margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .product-description {
