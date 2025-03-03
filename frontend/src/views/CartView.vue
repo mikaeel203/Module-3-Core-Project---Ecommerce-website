@@ -23,6 +23,9 @@
           </div>
           <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
         </div>
+        <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
+    <img :src="modalImageUrl" alt="Product Image" class="modal-image" />
+  </div>
         <div class="cart-summary">
           <div class="summary-item">
             <p>Subtotal</p>
@@ -70,6 +73,13 @@ export default {
     },
   },
   methods: {
+    openImageModal(imageUrl) {
+      this.modalImageUrl = imageUrl;
+      this.showImageModal = true;
+    },
+    closeImageModal() {
+      this.showImageModal = false;
+    },
     formatPrice(price) {
       return parseFloat(price).toFixed(2); // Ensure price is a number and format it
     },
@@ -234,5 +244,26 @@ export default {
   justify-content: center;
   font-size: 0.8rem;
   color: #666;
+
+
+}
+
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-image {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
 }
 </style>

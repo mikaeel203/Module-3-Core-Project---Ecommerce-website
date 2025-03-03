@@ -11,9 +11,12 @@
     <div class="product-layout" v-if="product">
       <!-- Product Images -->
       <div class="product-images">
+        <!-- Main Image -->
         <div class="main-image">
-          <img :src="product.images[0]" :alt="product.title" />
+          <img :src="mainImage" :alt="product.title" />
         </div>
+
+        <!-- Thumbnail Grid -->
         <div class="thumbnail-grid">
           <img
             v-for="(image, index) in product.images"
@@ -21,6 +24,7 @@
             :src="image"
             :alt="`${product.title} image ${index + 1}`"
             @click="setMainImage(image)"
+            :class="{ active: image === mainImage }"
             class="thumbnail"
           />
         </div>
@@ -68,6 +72,7 @@ export default {
   data() {
     return {
       product: null, // Product details
+      mainImage: '', // Currently displayed main image
       loading: false, // Loading state for add to cart
     };
   },
@@ -77,7 +82,7 @@ export default {
       const response = await fetch(`${API_BASE_URL}/products/${productId}`);
       if (response.ok) {
         this.product = await response.json();
-        console.log("Product Data:", this.product); // Debugging
+        this.mainImage = this.product.images[0]; // Set the first image as the main image
       } else {
         console.error("Failed to fetch product details");
       }
@@ -93,13 +98,12 @@ export default {
       this.mainImage = image; // Update the main image when a thumbnail is clicked
     },
     async handleAddToCart() {
-      // Redirect to login if user is not logged in
       if (!localStorage.getItem('token')) {
         this.$router.push('/login');
         return;
       }
 
-      this.loading = true; // Show loading state
+      this.loading = true;
 
       try {
         const response = await fetch(`${API_BASE_URL}/cart/add`, {
@@ -125,13 +129,12 @@ export default {
         console.error('Error adding to cart:', error);
         alert('An error occurred. Please try again.');
       } finally {
-        this.loading = false; // Hide loading state
+        this.loading = false;
       }
     },
   },
 };
 </script>
-
 <style scoped>
 .product-detail-container {
   max-width: 1200px;
@@ -175,6 +178,7 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 8px;
 }
 
 .thumbnail-grid {
@@ -189,10 +193,16 @@ export default {
   object-fit: cover;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: border-color 0.3s;
+  border-radius: 8px;
+  transition: border-color 0.3s, transform 0.3s;
 }
 
 .thumbnail:hover {
+  border-color: #3366ff;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
   border-color: #3366ff;
 }
 
@@ -226,9 +236,8 @@ export default {
   transition: background-color 0.3s;
 }
 
-.add-to-cart-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.add-to-cart-btn:hover {
+  background-color: #2855d9;
 }
 
 .product-description {
