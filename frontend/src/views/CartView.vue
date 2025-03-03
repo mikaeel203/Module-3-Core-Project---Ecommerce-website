@@ -7,6 +7,7 @@
         <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
           <!-- Display the first image of the product -->
           <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
+          
           <div class="item-details">
             <h3>{{ item.title }}</h3>
             <p>${{ formatPrice(item.price) }}</p>
@@ -25,7 +26,7 @@
         <div class="cart-summary">
           <div class="summary-item">
             <p>Subtotal</p>
-            <p>${{ formatPrice(cartSubtotal) }}</p>
+            <p>R{{ formatPrice(cartSubtotal) }}</p>
           </div>
           <div class="summary-item">
             <p>Shipping</p>
@@ -33,11 +34,11 @@
           </div>
           <div class="summary-item">
             <p>Tax</p>
-            <p>${{ formatPrice(cartTax) }}</p>
+            <p>R{{ formatPrice(cartTax) }}</p>
           </div>
           <div class="summary-item total">
             <p>Total</p>
-            <p>${{ formatPrice(cartTotal) }}</p>
+            <p>R{{ formatPrice(cartTotal) }}</p>
           </div>
           <router-link to="/checkout" class="checkout-btn">Proceed to Checkout</router-link>
         </div>
@@ -222,5 +223,16 @@ export default {
 
 .checkout-btn:hover {
   background-color: #2855d9;
+}
+
+.placeholder-image {
+  width: 100px;
+  height: 100px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #666;
 }
 </style>
