@@ -1,45 +1,127 @@
 <template>
   <div class="cart-container">
-    <h2>Shopping Cart</h2>
-    <div v-if="cartItems.length > 0">
-      <div v-for="item in cartItems" :key="item.id" class="cart-item">
-        <img :src="item.image" :alt="item.name" class="cart-item-image" />
-        <div class="cart-item-details">
-          <h3>{{ item.name }}</h3>
-          <p>${{ item.price.toFixed(2) }}</p>
-          <div class="quantity-controls">
-            <button @click="updateQuantity(item.id, item.quantity - 1)">-</button>
-            <input type="number" v-model.number="item.quantity" min="1" />
-            <button @click="updateQuantity(item.id, item.quantity + 1)">+</button>
+    <h2>Shopping Cart ({{ cartItems.length }} items)</h2>
+    <div v-if="loading">Loading cart...</div>
+    <template v-else>
+      <div v-if="cartItems.length > 0">
+        <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
+          <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
+          <div class="item-details">
+            <h3>{{ item.title }}</h3>
+            <p>${{ formatPrice(item.price) }}</p>
+            <div class="item-options">
+              <p v-if="item.custom_color">Color: {{ item.custom_color }}</p>
+              <p v-if="item.custom_wood_type">Material: {{ item.custom_wood_type }}</p>
+            </div>
+            <div class="quantity-controls">
+              <button @click="updateQuantity(item.cart_id, item.quantity - 1)">-</button>
+              <input type="number" v-model.number="item.quantity" min="1" />
+              <button @click="updateQuantity(item.cart_id, item.quantity + 1)">+</button>
+            </div>
           </div>
-          <button @click="removeFromCart(item.id)" class="remove-item">Remove</button>
+          <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
+        </div>
+        <div class="cart-summary">
+          <div class="summary-item">
+            <p>Subtotal</p>
+            <p>${{ formatPrice(cartSubtotal) }}</p>
+          </div>
+          <div class="summary-item">
+            <p>Shipping</p>
+            <p>Free</p>
+          </div>
+          <div class="summary-item">
+            <p>Tax</p>
+            <p>${{ formatPrice(cartTax) }}</p>
+          </div>
+          <div class="summary-item total">
+            <p>Total</p>
+            <p>${{ formatPrice(cartTotal) }}</p>
+          </div>
+          <router-link to="/checkout" class="checkout-btn">Proceed to Checkout</router-link>
         </div>
       </div>
-      <div class="cart-summary">
-        <p>Subtotal: ${{ cartTotal.toFixed(2) }}</p>
-        <button @click="proceedToCheckout" class="checkout-btn">Proceed to Checkout</button>
-      </div>
-    </div>
-    <p v-else>Your cart is empty.</p>
+      <p v-else>Your cart is empty.</p>
+    </template>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
+import { API_BASE_URL } from '@/config';
 
 export default {
+  data() {
+    return {
+      cartItems: [],
+      loading: true,
+    };
+  },
   computed: {
-    ...mapGetters('cart', ['cartItems', 'cartTotal']),
+    cartSubtotal() {
+      return this.cartItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
+    },
+    cartTax() {
+      return this.cartSubtotal * 0.08; // Assuming 8% tax rate
+    },
+    cartTotal() {
+      return this.cartSubtotal + this.cartTax;
+    },
   },
   methods: {
-    ...mapActions('cart', ['removeFromCart', 'updateQuantity', 'clearCart']),
-    updateQuantity(productId, quantity) {
-      if (quantity < 1) return;
-      this.updateQuantity({ productId, quantity });
+    formatPrice(price) {
+      return parseFloat(price).toFixed(2); // Ensure price is a number and format it
     },
-    proceedToCheckout() {
-      this.$router.push('/checkout');
+    async fetchCart() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/cart`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch cart');
+
+        this.cartItems = await response.json();
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+        this.cartItems = [];
+      }
     },
+    async updateQuantity(cart_id, newQuantity) {
+  if (newQuantity < 1) return;
+
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, { // Use cart_id in URL
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ quantity: newQuantity }), // Send quantity in body
+    });
+    await this.fetchCart();
+  } catch (error) {
+    console.error('Error updating quantity:', error);
+  }
+},
+    async removeItem(cart_id) {
+  try {
+    const token = localStorage.getItem('token');
+    await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, { // Use cart_id in URL
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    await this.fetchCart();
+  } catch (error) {
+    console.error('Error removing item:', error);
+  }
+},
+  },
+  async mounted() {
+    await this.fetchCart();
+    this.loading = false;
   },
 };
 </script>
@@ -53,31 +135,48 @@ export default {
 
 .cart-item {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+  align-items: center;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 20px;
+  padding: 20px 0;
 }
 
 .cart-item-image {
   width: 100px;
   height: 100px;
   object-fit: cover;
+  margin-right: 20px;
 }
 
-.cart-item-details {
+.item-details {
   flex: 1;
+}
+
+.item-details h3 {
+  margin-bottom: 10px;
+}
+
+.item-options p {
+  margin: 5px 0;
+  color: #666;
 }
 
 .quantity-controls {
   display: flex;
-  gap: 10px;
   align-items: center;
+  margin-top: 10px;
+}
+
+.quantity-controls button {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  cursor: pointer;
 }
 
 .quantity-controls input {
   width: 50px;
   text-align: center;
+  margin: 0 10px;
 }
 
 .remove-item {
@@ -89,15 +188,38 @@ export default {
 }
 
 .cart-summary {
-  text-align: right;
   margin-top: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.summary-item.total {
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+  font-weight: bold;
 }
 
 .checkout-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
   background-color: #3366ff;
   color: white;
   border: none;
-  padding: 10px 20px;
+  border-radius: 4px;
+  text-align: center;
   cursor: pointer;
+  margin-top: 20px;
+}
+
+.checkout-btn:hover {
+  background-color: #2855d9;
 }
 </style>

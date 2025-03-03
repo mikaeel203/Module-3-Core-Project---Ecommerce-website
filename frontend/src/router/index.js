@@ -17,7 +17,10 @@ const routes = [
   { path: '/urns', component: UrnsView },
   { path: '/petmemorials', component: PetMemorialsViews },
   { path: '/cart', component: CartView, meta: { requiresAuth: true } },
-  { path: '/details/:id', component: ProductDetailsComp },
+  {
+    path: '/details/:id',
+    component: ProductDetailsComp,
+  },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: "/profile", component: Profile, meta: { requiresAuth: true } },

@@ -40,10 +40,17 @@ export default {
     };
   },
   async created() {
-    // Fetch urns from the backend
-    const response = await fetch(`${API_BASE_URL}/products?category=Urn`);
-    this.products = await response.json();
-  },
+  try {
+    const response = await fetch(`${API_BASE_URL}/products?category=Urns`);
+    if (response.ok) {
+      this.products = await response.json();
+    } else {
+      console.error('Failed to fetch products');
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+  }
+},
   
   methods: {
     handleSearch(query) {
