@@ -59,18 +59,28 @@ export const getCart = async (req, res) => {
         p.description,
         p.price,
         p.category,
-        MIN(pi.image_url) AS image_url, -- Aggregate image URLs
+        (SELECT pi.image_url 
+         FROM product_images pi 
+         WHERE pi.product_id = p.product_id 
+         LIMIT 1) AS image_url,
         cu.color AS custom_color,
         cu.wood_type AS custom_wood_type
       FROM cart c
       JOIN products p ON c.product_id = p.product_id
-      LEFT JOIN product_images pi ON p.product_id = pi.product_id
       LEFT JOIN customize cu ON c.customize_id = cu.customize_id
       WHERE c.user_id = ?
-      GROUP BY c.cart_id -- Group by cart_id only
+      GROUP BY c.cart_id
     `, [user_id]);
 
-    res.status(200).json(cartItems || []);
+    // Convert relative paths to absolute URLs
+    const processedItems = cartItems.map(item => ({
+      ...item,
+      image_url: item.image_url 
+        ? `${req.protocol}://${req.get('host')}${item.image_url}`
+        : null
+    }));
+
+    res.status(200).json(processedItems);
   } catch (err) {
     console.error(err);
     res.status(500).json([]);

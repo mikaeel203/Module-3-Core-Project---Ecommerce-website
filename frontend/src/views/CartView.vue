@@ -5,6 +5,7 @@
     <template v-else>
       <div v-if="cartItems.length > 0">
         <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
+          <!-- Display the first image of the product -->
           <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
           <div class="item-details">
             <h3>{{ item.title }}</h3>
@@ -89,35 +90,35 @@ export default {
       }
     },
     async updateQuantity(cart_id, newQuantity) {
-  if (newQuantity < 1) return;
+      if (newQuantity < 1) return;
 
-  try {
-    const token = localStorage.getItem('token');
-    await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, { // Use cart_id in URL
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ quantity: newQuantity }), // Send quantity in body
-    });
-    await this.fetchCart();
-  } catch (error) {
-    console.error('Error updating quantity:', error);
-  }
-},
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ quantity: newQuantity }),
+        });
+        await this.fetchCart();
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+      }
+    },
     async removeItem(cart_id) {
-  try {
-    const token = localStorage.getItem('token');
-    await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, { // Use cart_id in URL
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    await this.fetchCart();
-  } catch (error) {
-    console.error('Error removing item:', error);
-  }
-},
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        await this.fetchCart();
+      } catch (error) {
+        console.error('Error removing item:', error);
+      }
+    },
   },
   async mounted() {
     await this.fetchCart();
