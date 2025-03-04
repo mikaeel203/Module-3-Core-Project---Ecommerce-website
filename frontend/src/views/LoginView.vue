@@ -49,48 +49,35 @@ export default {
       error: '', // Error message
     };
   },
-  methods: {
-    async login() {
-      // Reset error message
-      this.error = '';
+// LoginView.vue
+methods: {
+  async login() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.email,
+          password: this.password,
+        }),
+      });
 
-      // Validate inputs
-      if (!this.email || !this.password) {
-        this.error = 'Please fill in all fields.';
-        return;
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('token', data.token); // Store the token
+        this.$store.dispatch('login'); // Update Vuex store
+        this.$router.push('/'); // Redirect to home
+      } else {
+        this.error = 'Login failed. Please try again.';
       }
-
-      try {
-        // Send login request to the backend
-        const response = await fetch(`${API_BASE_URL}/auth/login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: this.email,
-            password: this.password,
-          }),
-        });
-
-        // Handle response
-        if (response.ok) {
-          // Login successful
-          const data = await response.json();
-          localStorage.setItem('token', data.token); // Store the JWT token
-          this.$router.push('/'); // Redirect to the home page
-        } else {
-          // Handle errors
-          const data = await response.json();
-          this.error = data.message || 'Login failed. Please try again.';
-        }
-      } catch (err) {
-        // Handle network errors
-        this.error = 'An error occurred. Please try again.';
-        console.error(err);
-      }
-    },
+    } catch (err) {
+      this.error = 'An error occurred. Please try again.';
+      console.error(err);
+    }
   },
+},
 };
 </script>
 

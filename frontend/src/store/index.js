@@ -161,6 +161,27 @@ const store = createStore({
       },
     },
   },
+
+  state: {
+    isAuthenticated: !!localStorage.getItem('token'), // Initialize based on token presence
+  },
+  mutations: {
+    SET_AUTH(state, isAuthenticated) {
+      state.isAuthenticated = isAuthenticated;
+    },
+  },
+  actions: {
+    login({ commit }) {
+      commit('SET_AUTH', true);
+    },
+    logout({ commit }) {
+      localStorage.removeItem('token');
+      commit('SET_AUTH', false);
+    },
+  },
+  getters: {
+    isAuthenticated: (state) => state.isAuthenticated,
+  },
 });
 
 export default store;

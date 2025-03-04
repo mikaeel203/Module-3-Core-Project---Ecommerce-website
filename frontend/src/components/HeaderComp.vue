@@ -16,7 +16,7 @@
         <router-link to="/cart"><i class="bi bi-cart-fill"></i></router-link>
 
         <!-- Profile Icon or Login/Register Buttons -->
-        <template v-if="isLoggedIn">
+        <template v-if="isAuthenticated">
           <!-- Profile Icon -->
           <router-link to="/profile"><i class="bi bi-person-circle"></i></router-link>
           <!-- Logout Button -->
@@ -33,20 +33,14 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
   computed: {
-    isLoggedIn() {
-      // Check if the user is logged in by checking the presence of a token in localStorage
-      return !!localStorage.getItem('token');
-    },
+    ...mapGetters(['isAuthenticated']), // Use Vuex getter for authentication state
   },
   methods: {
-    logout() {
-      // Remove the token from localStorage
-      localStorage.removeItem('token');
-      // Redirect to the home page
-      this.$router.push('/');
-    },
+    ...mapActions(['logout']), // Use Vuex action for logout
   },
 };
 </script>
