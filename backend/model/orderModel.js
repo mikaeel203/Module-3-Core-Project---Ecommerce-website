@@ -1,12 +1,12 @@
 import { pool } from "../config/config.js"
 
 const getOrderId = async (id) => {
-    let [data] = await pool.query("SELECT * FROM `eternal_rest_db`.`orders` WHERE `orders`.`order_id` = ?", [id])
+    let [data] = await pool.query("SELECT * FROM `eternal_rest_db`.`orders`INNER JOIN `customize` ON `orders`.`customize_id` = `customize`.`customize_id`  WHERE `orders`.`order_id` = ?", [id])
     return data
 }
 
 const getOrders = async () => {
-    let [data] = await pool.query("SELECT * FROM `eternal_rest_db`.`orders`")
+    let [data] = await pool.query("SELECT * FROM `eternal_rest_db`.`orders` INNER JOIN `customize` ON `orders`.`customize_id` = `customize`.`customize_id`")
     return data
 }
 
