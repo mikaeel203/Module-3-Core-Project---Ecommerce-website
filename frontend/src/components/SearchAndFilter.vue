@@ -26,7 +26,7 @@
           id="minPrice"
           placeholder="Min"
           class="price-input"
-        />
+         min="0"/>
         <label for="maxPrice">Max Price:</label>
         <input
           type="number"
@@ -34,7 +34,7 @@
           id="maxPrice"
           placeholder="Max"
           class="price-input"
-        />
+          min="0" />
       </div>
     </div>
   </template>

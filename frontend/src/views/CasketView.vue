@@ -7,13 +7,6 @@
       </div>
     </div>
 
-    <!-- Search and Filter -->
-    <SearchAndFilter
-      @search="handleSearch"
-      @filter-category="handleCategoryFilter"
-      @filter-price="handlePriceFilter"
-    />
-
     <!-- Product Catalog Section -->
     <section class="catalog">
       <div class="container">
@@ -21,7 +14,7 @@
         <p class="subtitle">Browse our carefully curated selection of caskets.</p>
 
         <div class="product-grid">
-          <ProductCard v-for="product in products" :key="product.product_id" :product="product" />
+          <ProductCard v-for="product in filteredProducts" :key="product.product_id" :product="product" />
         </div>
       </div>
     </section>
@@ -30,71 +23,33 @@
 
 <script>
 import ProductCard from '@/components/ProductCard.vue';
-import SearchAndFilter from '@/components/SearchAndFilter.vue';
 import { API_BASE_URL } from '@/config';
 
 export default {
   components: {
     ProductCard,
-    SearchAndFilter,
   },
   data() {
     return {
-      products: [], // All products fetched from the backend
-      searchQuery: '', // Search term
-      selectedCategory: '', // Selected category filter
-      minPrice: null, // Minimum price filter
-      maxPrice: null, // Maximum price filter
+      products: [],
     };
   },
   computed: {
     filteredProducts() {
-      return this.products.filter((product) => {
-        // Safeguard: Ensure product.name is defined
-        if (!product.name) return false;
-
-        // Filter by search query
-        const matchesSearch = product.name
-          .toLowerCase()
-          .includes(this.searchQuery.toLowerCase());
-
-        // Filter by category
-        const matchesCategory = this.selectedCategory
-          ? product.category === this.selectedCategory
-          : true;
-
-        // Filter by price range
-        const matchesPrice =
-          (this.minPrice ? product.price >= this.minPrice : true) &&
-          (this.maxPrice ? product.price <= this.maxPrice : true);
-
-        return matchesSearch && matchesCategory && matchesPrice;
-      });
+      return this.products.filter(product => product.category === 'Casket');
     },
   },
   async created() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/products?category=Casket`);
-    if (response.ok) {
-      this.products = await response.json();
-    } else {
-      console.error('Failed to fetch products');
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`);
+      if (response.ok) {
+        this.products = await response.json();
+      } else {
+        console.error('Failed to fetch products');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-  } catch (error) {
-    console.error('Error fetching products:', error);
-  }
-},
-  methods: {
-    handleSearch(query) {
-      this.searchQuery = query;
-    },
-    handleCategoryFilter(category) {
-      this.selectedCategory = category;
-    },
-    handlePriceFilter({ min, max }) {
-      this.minPrice = min;
-      this.maxPrice = max;
-    },
   },
 };
 </script>

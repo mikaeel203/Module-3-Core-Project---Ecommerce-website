@@ -5,7 +5,9 @@
     <template v-else>
       <div v-if="cartItems.length > 0">
         <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
+          <!-- Display the first image of the product -->
           <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
+          
           <div class="item-details">
             <h3>{{ item.title }}</h3>
             <p>${{ formatPrice(item.price) }}</p>
@@ -21,10 +23,13 @@
           </div>
           <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
         </div>
+        <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
+    <img :src="modalImageUrl" alt="Product Image" class="modal-image" />
+  </div>
         <div class="cart-summary">
           <div class="summary-item">
             <p>Subtotal</p>
-            <p>${{ formatPrice(cartSubtotal) }}</p>
+            <p>R{{ formatPrice(cartSubtotal) }}</p>
           </div>
           <div class="summary-item">
             <p>Shipping</p>
@@ -32,11 +37,11 @@
           </div>
           <div class="summary-item">
             <p>Tax</p>
-            <p>${{ formatPrice(cartTax) }}</p>
+            <p>R{{ formatPrice(cartTax) }}</p>
           </div>
           <div class="summary-item total">
             <p>Total</p>
-            <p>${{ formatPrice(cartTotal) }}</p>
+            <p>R{{ formatPrice(cartTotal) }}</p>
           </div>
           <router-link to="/checkout" class="checkout-btn">Proceed to Checkout</router-link>
         </div>
@@ -68,6 +73,13 @@ export default {
     },
   },
   methods: {
+    openImageModal(imageUrl) {
+      this.modalImageUrl = imageUrl;
+      this.showImageModal = true;
+    },
+    closeImageModal() {
+      this.showImageModal = false;
+    },
     formatPrice(price) {
       return parseFloat(price).toFixed(2); // Ensure price is a number and format it
     },
@@ -89,35 +101,35 @@ export default {
       }
     },
     async updateQuantity(cart_id, newQuantity) {
-  if (newQuantity < 1) return;
+      if (newQuantity < 1) return;
 
-  try {
-    const token = localStorage.getItem('token');
-    await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, { // Use cart_id in URL
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ quantity: newQuantity }), // Send quantity in body
-    });
-    await this.fetchCart();
-  } catch (error) {
-    console.error('Error updating quantity:', error);
-  }
-},
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ quantity: newQuantity }),
+        });
+        await this.fetchCart();
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+      }
+    },
     async removeItem(cart_id) {
-  try {
-    const token = localStorage.getItem('token');
-    await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, { // Use cart_id in URL
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-    await this.fetchCart();
-  } catch (error) {
-    console.error('Error removing item:', error);
-  }
-},
+      try {
+        const token = localStorage.getItem('token');
+        await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        await this.fetchCart();
+      } catch (error) {
+        console.error('Error removing item:', error);
+      }
+    },
   },
   async mounted() {
     await this.fetchCart();
@@ -221,5 +233,37 @@ export default {
 
 .checkout-btn:hover {
   background-color: #2855d9;
+}
+
+.placeholder-image {
+  width: 100px;
+  height: 100px;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: #666;
+
+
+}
+
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-image {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
 }
 </style>
