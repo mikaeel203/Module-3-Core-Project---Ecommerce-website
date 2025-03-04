@@ -1,352 +1,270 @@
 <template>
-    <div class="product-detail-container">
-      <!-- Back button -->
-      <div class="back-button">
-        <router-link :to="{ name: 'products' }">
-          <span class="arrow">&larr;</span> Previous
-        </router-link>
-      </div>
-  
-      <div class="product-layout" v-if="product">
-        <!-- Product images section -->
-        <div class="product-images">
-          <div class="main-image">
-            <img :src="selectedImage" :alt="product.name" />
-          </div>
-          <div class="thumbnail-row">
-            <div 
-              v-for="(image, index) in product.images" 
-              :key="index" 
-              class="thumbnail" 
-              :class="{ active: selectedImage === image }"
-              @click="selectedImage = image"
-            >
-              <img :src="image" :alt="`${product.name} view ${index + 1}`" />
-            </div>
-          </div>
+  <div class="product-detail-container">
+    <!-- Back button -->
+    <div class="back-button">
+      <router-link to="/caskets">
+        <span class="arrow">&larr;</span> Previous
+      </router-link>
+    </div>
+
+    <!-- Product Details -->
+    <div class="product-layout" v-if="product">
+      <!-- Product Images -->
+      <div class="product-images">
+        <div class="main-image">
+          <img :src="product.images[0]" :alt="product.title" />
         </div>
-  
-        <!-- Product info section -->
-        <div class="product-info">
-          <h1 class="product-title">{{ product.name }}</h1>
-          <div class="product-price">${{ formatPrice(product.price) }}</div>
-  
-          <!-- Product options -->
-          <div class="product-options">
-            <div class="option-group" v-if="product.woodTypes && product.woodTypes.length">
-              <label>Wood Type:</label>
-              <select v-model="selectedWoodType" class="option-select">
-                <option v-for="type in product.woodTypes" :key="type" :value="type">
-                  {{ type }}
-                </option>
-              </select>
-            </div>
-  
-            <div class="option-group" v-if="product.interiorColors && product.interiorColors.length">
-              <label>Interior Color:</label>
-              <div class="color-options">
-                <div 
-                  v-for="color in product.interiorColors" 
-                  :key="color.value"
-                  class="color-option"
-                  :class="{ selected: selectedColor === color.value }"
-                  :style="{ backgroundColor: color.hex }"
-                  @click="selectedColor = color.value"
-                ></div>
-              </div>
-            </div>
-          </div>
-  
-          <!-- Add to cart button -->
-          <button class="add-to-cart-btn" @click="addToCart">
-            Add to Cart
-          </button>
-  
-          <!-- Product description -->
-          <div class="product-description">
-            <h2>Product Description</h2>
-            <p>{{ product.description }}</p>
-  
-            <ul class="feature-list">
-              <li v-for="(feature, index) in product.features" :key="index">
-                <span class="check-icon">✓</span> {{ feature }}
-              </li>
-            </ul>
-          </div>
+        <div class="thumbnail-grid">
+          <img
+            v-for="(image, index) in product.images"
+            :key="index"
+            :src="image"
+            :alt="`${product.title} image ${index + 1}`"
+            @click="setMainImage(image)"
+            class="thumbnail"
+          />
         </div>
       </div>
-  
-      <div v-else class="loading">
-        Loading product details...
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <h1 class="product-title">{{ product.title }}</h1>
+        <div class="product-price">R{{ formatPrice(product.price) }}</div>
+
+        <!-- Add to Cart Button -->
+        <button class="add-to-cart-btn" @click="handleAddToCart">Add to Cart</button>
+
+        <!-- Product Description -->
+        <div class="product-description">
+          <h2>Product Description</h2>
+          <p>{{ product.description }}</p>
+        </div>
+
+        <!-- Additional Details -->
+        <div class="additional-details">
+          <h2>Additional Details</h2>
+          <p><strong>Color:</strong> {{ product.color }}</p>
+          <p><strong>Wood Type:</strong> {{ product.wood_type }}</p>
+          <p><strong>Category:</strong> {{ product.category }}</p>
+        </div>
       </div>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'ProductDetail',
-    props: {
-      productId: {
-        type: [String, Number],
-        required: true
-      }
+
+    <!-- Loading State -->
+    <div v-else class="loading">Loading product details...</div>
+  </div>
+</template>
+
+<script>
+import { API_BASE_URL } from '@/config';
+
+export default {
+  props: {
+    id: {
+      type: [String, Number],
+      required: true,
     },
-    data() {
-      return {
-        product: null,
-        selectedImage: null,
-        selectedWoodType: null,
-        selectedColor: null,
-        loading: true
+  },
+  data() {
+    return {
+      product: null, // Product details
+      loading: false, // Loading state for add to cart
+    };
+  },
+  async created() {
+    const productId = this.$route.params.id;
+    try {
+      const response = await fetch(`${API_BASE_URL}/products/${productId}`);
+      if (response.ok) {
+        this.product = await response.json();
+        console.log("Product Data:", this.product); // Debugging
+      } else {
+        console.error("Failed to fetch product details");
       }
-    },
-    created() {
-      this.fetchProductDetails();
-    },
-    methods: {
-      fetchProductDetails() {
-        // Replace with your actual API endpoint
-        fetch(`/api/products/${this.productId}`)
-          .then(response => response.json())
-          .then(data => {
-            this.product = data;
-            // Set default selections
-            if (this.product.images && this.product.images.length) {
-              this.selectedImage = this.product.images[0];
-            }
-            if (this.product.woodTypes && this.product.woodTypes.length) {
-              this.selectedWoodType = this.product.woodTypes[0];
-            }
-            if (this.product.interiorColors && this.product.interiorColors.length) {
-              this.selectedColor = this.product.interiorColors[0].value;
-            }
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error('Error fetching product details:', error);
-            this.loading = false;
-          });
-      },
-      formatPrice(price) {
-        return parseFloat(price).toLocaleString('en-US');
-      },
-      addToCart() {
-        const productToAdd = {
-          id: this.product.id,
-          name: this.product.name,
-          price: this.product.price,
-          woodType: this.selectedWoodType,
-          interiorColor: this.selectedColor,
-          image: this.selectedImage,
-          quantity: 1
-        };
-        
-        // Emit event for parent component or use Vuex store
-        this.$emit('add-to-cart', productToAdd);
-        
-        // Alternative: If using Vuex
-        // this.$store.dispatch('cart/addToCart', productToAdd);
-      }
+    } catch (error) {
+      console.error("Error fetching product details:", error);
     }
-  }
-  </script>
-  
-  <style scoped>
-  .product-detail-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
-  }
-  
-  .back-button {
-    margin-bottom: 20px;
-  }
-  
-  .back-button a {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: #333;
-    font-size: 16px;
-  }
-  
-  .arrow {
-    margin-right: 8px;
-  }
-  
-  .product-layout {
-    display: flex;
-    flex-direction: row;
-    gap: 40px;
-  }
-  
-  @media (max-width: 768px) {
-    .product-layout {
-      flex-direction: column;
-    }
-  }
-  
-  .product-images {
-    flex: 1;
-  }
-  
-  .main-image {
-    width: 100%;
-    background-color: #f8f8f8;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    overflow: hidden;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  
-  .main-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  
-  .thumbnail-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  
-  .thumbnail {
-    width: 80px;
-    height: 80px;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
-  }
-  
-  .thumbnail.active {
-    border: 2px solid #3366ff;
-  }
-  
-  .thumbnail img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  
-  .product-info {
-    flex: 1;
-  }
-  
-  .product-title {
-    font-size: 28px;
-    margin: 0 0 10px 0;
-    color: #333;
-  }
-  
-  .product-price {
-    font-size: 24px;
-    font-weight: bold;
-    color: #444;
-    margin-bottom: 20px;
-  }
-  
-  .product-options {
-    margin-bottom: 25px;
-  }
-  
-  .option-group {
-    margin-bottom: 15px;
-  }
-  
-  .option-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #555;
-  }
-  
-  .option-select {
-    width: 100%;
-    max-width: 300px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: white;
-    font-size: 16px;
-  }
-  
-  .color-options {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .color-option {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid #ddd;
-    cursor: pointer;
-  }
-  
-  .color-option.selected {
-    border: 2px solid #333;
-    box-shadow: 0 0 0 2px white inset;
-  }
-  
-  .add-to-cart-btn {
-    width: 100%;
-    max-width: 300px;
-    padding: 15px 0;
-    background-color: #3366ff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .add-to-cart-btn:hover {
-    background-color: #2855d9;
-  }
-  
-  .product-description {
-    margin-top: 30px;
-  }
-  
-  .product-description h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    color: #333;
-  }
-  
-  .product-description p {
-    line-height: 1.6;
-    color: #555;
-    margin-bottom: 20px;
-  }
-  
-  .feature-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .feature-list li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    color: #444;
-  }
-  
-  .check-icon {
-    color: #4CAF50;
-    margin-right: 10px;
-  }
-  
-  .loading {
-    text-align: center;
-    padding: 40px;
-    font-size: 18px;
-    color: #666;
-  }
-  </style>
+  },
+  methods: {
+    formatPrice(price) {
+      return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    },
+    setMainImage(image) {
+      this.mainImage = image; // Update the main image when a thumbnail is clicked
+    },
+    async handleAddToCart() {
+      // Redirect to login if user is not logged in
+      if (!localStorage.getItem('token')) {
+        this.$router.push('/login');
+        return;
+      }
+
+      this.loading = true; // Show loading state
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/cart/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            product_id: this.product.product_id,
+            quantity: 1, // Default quantity
+          }),
+        });
+
+        if (response.ok) {
+          alert('Product added to cart!');
+          this.$store.dispatch('fetchCart'); // Update cart in Vuex store
+        } else {
+          const data = await response.json();
+          alert(data.error || 'Failed to add to cart.');
+        }
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        alert('An error occurred. Please try again.');
+      } finally {
+        this.loading = false; // Hide loading state
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.product-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.back-button {
+  margin-bottom: 20px;
+}
+
+.back-button a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+  font-size: 16px;
+}
+
+.arrow {
+  margin-right: 8px;
+}
+
+.product-layout {
+  display: flex;
+  gap: 40px;
+}
+
+.product-images {
+  flex: 1;
+}
+
+.main-image {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.thumbnail:hover {
+  border-color: #3366ff;
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-title {
+  font-size: 28px;
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+.product-price {
+  font-size: 24px;
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.add-to-cart-btn {
+  width: 100%;
+  padding: 15px 0;
+  background-color: #3366ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.product-description {
+  margin-bottom: 20px;
+}
+
+.product-description h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.product-description p {
+  color: #555;
+  line-height: 1.6;
+}
+
+.additional-details {
+  margin-top: 20px;
+}
+
+.additional-details h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.additional-details p {
+  color: #555;
+  line-height: 1.6;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+}
+</style>
