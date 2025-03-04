@@ -1,12 +1,10 @@
 <template>
   <router-link :to="`/details/${product.product_id}`" class="product-card">
     <div class="product-image">
-      <!-- Display the first image of the product -->
       <img :src="product.images[0]" :alt="product.title" />
     </div>
     <div class="product-details">
       <h3>{{ product.title }}</h3>
-      <!-- <p>{{ product.description }}</p> -->
       <p class="price">R{{ formatPrice(product.price) }}</p>
       <span class="view-details">View More Details <i class="bi bi-arrow-right"></i></span>
     </div>
@@ -24,6 +22,21 @@ export default {
   methods: {
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    },
+    getProductRoute(product) {
+      // Determine the route based on the product category
+      switch (product.category) {
+        case 'Casket':
+          return '/caskets';
+        case 'Coffin':
+          return '/coffins';
+        case 'Urn':
+          return '/urns';
+        case 'Pet Memorial':
+          return '/petmemorials';
+        default:
+          return '/';
+      }
     },
   },
 };
