@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import express from "express"
 import { getOrderIdCon, getOrdersCon, addOrderCon, deleteOrderCon } from '../controller/orderController.js'
 import { placeOrder, getOrders } from '../controllers/orderController.js';
