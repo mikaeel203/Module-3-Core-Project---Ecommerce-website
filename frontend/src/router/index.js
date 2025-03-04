@@ -9,9 +9,11 @@ import ProductDetailsComp from '@/components/ProductDetailsComp.vue';
 import Login from '@/views/LoginView.vue';
 import Register from '@/views/RegisterView.vue';
 import Profile from '@/views/ProfileView.vue';
+import AllProductsView from '@/views/AllProductsView.vue';
 
 const routes = [
   { path: '/', component: HomeView },
+  { path: '/all-products', component: AllProductsView },
   { path: '/caskets', component: CasketView },
   { path: '/coffins', component: CoffinView },
   { path: '/urns', component: UrnsView },

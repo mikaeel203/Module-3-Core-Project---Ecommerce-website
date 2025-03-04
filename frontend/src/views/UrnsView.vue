@@ -15,7 +15,7 @@
         <p class="subtitle">Browse our carefully curated selection of urns.</p>
 
         <div class="product-grid">
-          <ProductCard v-for="product in products" :key="product.product_id" :product="product" />
+          <ProductCard v-for="product in filteredProducts" :key="product.product_id" :product="product" />
         </div>
       </div>
     </section>
@@ -29,7 +29,6 @@
 import ProductCard from '@/components/ProductCard.vue';
 import { API_BASE_URL } from '@/config';
 
-
 export default {
   components: {
     ProductCard,
@@ -39,31 +38,23 @@ export default {
       products: [],
     };
   },
+  computed: {
+    filteredProducts() {
+      return this.products.filter(product => product.category === 'Urn');
+    },
+  },
   async created() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/products?category=Urns`);
-    if (response.ok) {
-      this.products = await response.json();
-    } else {
-      console.error('Failed to fetch products');
+    try {
+      const response = await fetch(`${API_BASE_URL}/products`);
+      if (response.ok) {
+        this.products = await response.json();
+      } else {
+        console.error('Failed to fetch products');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
-  } catch (error) {
-    console.error('Error fetching products:', error);
-  }
-},
-  
-  methods: {
-    handleSearch(query) {
-      this.searchQuery = query;
-    },
-    handleCategoryFilter(category) {
-      this.selectedCategory = category;
-    },
-    handlePriceFilter({ min, max }) {
-      this.minPrice = min;
-      this.maxPrice = max;
-    },
-  }
+  },
 };
 </script>
   <style scoped>

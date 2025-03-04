@@ -7,7 +7,7 @@
         <div class="hero-content">
           <h1>Dignified Memorials for Loved Ones – Humans and Pets</h1>
           <p>Crafting beautiful, lasting tributes to honor and remember those we cherish.</p>
-          <button class="btn primary-btn">View Collections</button>
+          <router-link to="/all-products" class="btn primary-btn">View Collections</router-link>
         </div>
         <div class="hero-image">
           <img src="../assets/heroimage.png" alt="Dignified memorial casket with flowers" />

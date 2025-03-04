@@ -11,9 +11,25 @@
     <div class="product-layout" v-if="product">
       <!-- Product Images -->
       <div class="product-images">
-        <div class="main-image">
-          <img :src="product.images[0]" :alt="product.title" />
+        <!-- Main Image -->
+        <div class="main-image-container">
+          <img 
+            :src="mainImage" 
+            :alt="product.title" 
+            ref="mainImage"
+            class="main-image"
+            :style="{ transform: `scale(${zoomLevel})` }"
+          >
         </div>
+
+        <!-- Zoom Controls -->
+        <div class="zoom-controls">
+          <button @click="zoomIn">Zoom In</button>
+          <button @click="zoomOut">Zoom Out</button>
+          <button @click="resetZoom">Reset</button>
+        </div>
+
+        <!-- Thumbnail Grid -->
         <div class="thumbnail-grid">
           <img
             v-for="(image, index) in product.images"
@@ -21,6 +37,7 @@
             :src="image"
             :alt="`${product.title} image ${index + 1}`"
             @click="setMainImage(image)"
+            :class="{ active: image === mainImage }"
             class="thumbnail"
           />
         </div>
@@ -68,7 +85,11 @@ export default {
   data() {
     return {
       product: null, // Product details
+      mainImage: '', // Currently displayed main image
       loading: false, // Loading state for add to cart
+      zoomLevel: 1, // Current zoom level (1 = no zoom)
+      maxZoom: 3, // Maximum zoom level
+      minZoom: 1 
     };
   },
   async created() {
@@ -77,7 +98,7 @@ export default {
       const response = await fetch(`${API_BASE_URL}/products/${productId}`);
       if (response.ok) {
         this.product = await response.json();
-        console.log("Product Data:", this.product); // Debugging
+        this.mainImage = this.product.images[0]; // Set the first image as the main image
       } else {
         console.error("Failed to fetch product details");
       }
@@ -86,6 +107,19 @@ export default {
     }
   },
   methods: {
+    zoomIn() {
+      if (this.zoomLevel < this.maxZoom) {
+        this.zoomLevel += 0.5;
+      }
+    },
+    zoomOut() {
+      if (this.zoomLevel > this.minZoom) {
+        this.zoomLevel -= 0.5;
+      }
+    },
+    resetZoom() {
+      this.zoomLevel = 1;
+    },
     formatPrice(price) {
       return price.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     },
@@ -93,13 +127,12 @@ export default {
       this.mainImage = image; // Update the main image when a thumbnail is clicked
     },
     async handleAddToCart() {
-      // Redirect to login if user is not logged in
       if (!localStorage.getItem('token')) {
         this.$router.push('/login');
         return;
       }
 
-      this.loading = true; // Show loading state
+      this.loading = true;
 
       try {
         const response = await fetch(`${API_BASE_URL}/cart/add`, {
@@ -125,13 +158,12 @@ export default {
         console.error('Error adding to cart:', error);
         alert('An error occurred. Please try again.');
       } finally {
-        this.loading = false; // Hide loading state
+        this.loading = false;
       }
     },
   },
 };
 </script>
-
 <style scoped>
 .product-detail-container {
   max-width: 1200px;
@@ -175,26 +207,33 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  border-radius: 8px;
 }
 
-.thumbnail-grid {
+/* .thumbnail-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
-}
+} */
 
-.thumbnail {
+/* .thumbnail {
   width: 100%;
   height: 100px;
   object-fit: cover;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: border-color 0.3s;
+  border-radius: 8px;
+  transition: border-color 0.3s, transform 0.3s;
 }
 
 .thumbnail:hover {
   border-color: #3366ff;
+  transform: scale(1.05);
 }
+
+.thumbnail.active {
+  border-color: #3366ff;
+} */
 
 .product-info {
   flex: 1;
@@ -226,9 +265,8 @@ export default {
   transition: background-color 0.3s;
 }
 
-.add-to-cart-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+.add-to-cart-btn:hover {
+  background-color: #2855d9;
 }
 
 .product-description {
@@ -266,5 +304,67 @@ export default {
   padding: 40px;
   font-size: 18px;
   color: #666;
+}
+
+.main-image-container {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden; /* Hide overflow when zoomed */
+  margin-bottom: 15px;
+}
+
+.main-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease; /* Smooth zoom transition */
+  transform-origin: center center; /* Zoom from the center */
+}
+
+.zoom-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.zoom-controls button {
+  padding: 8px 16px;
+  background-color: #3366ff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.zoom-controls button:hover {
+  background-color: #2855d9;
+}
+
+.thumbnail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.thumbnail:hover {
+  border-color: #3366ff;
+  transform: scale(1.05);
+}
+
+.thumbnail.active {
+  border-color: #3366ff;
 }
 </style>
