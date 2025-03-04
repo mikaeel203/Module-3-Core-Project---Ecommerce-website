@@ -10,6 +10,8 @@ import Login from '@/views/LoginView.vue';
 import Register from '@/views/RegisterView.vue';
 import Profile from '@/views/ProfileView.vue';
 import AllProductsView from '@/views/AllProductsView.vue';
+import Checkout from '@/views/CheckoutView.vue';
+import OrderConfirmation from '@/components/OrderConfirmation.vue';
 
 const routes = [
   { path: '/', component: HomeView },
@@ -23,6 +25,8 @@ const routes = [
     path: '/details/:id',
     component: ProductDetailsComp,
   },
+  { path: '/checkout', component: Checkout, meta: { requiresAuth: true } },
+  { path: '/order-confirmation', component: OrderConfirmation },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: "/profile", component: Profile, meta: { requiresAuth: true } },
