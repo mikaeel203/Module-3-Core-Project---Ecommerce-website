@@ -69,7 +69,7 @@ export const placeOrder = async (req, res) => {
       status: 'Pending',
       shipping,
     };
-    await sendOrderConfirmationEmail(req.user.email, order); // Send email
+    // await sendOrderConfirmationEmail(req.user.email, order); // Send email
 
     res.status(201).json({ message: 'Order placed successfully', order_id });
   } catch (err) {
@@ -81,6 +81,8 @@ export const placeOrder = async (req, res) => {
     // Release the connection back to the pool
     if (connection) connection.release();
   }
+
+   return order_id;
 };
 export const getOrders = async (req, res) => {
   const { user_id } = req.params;

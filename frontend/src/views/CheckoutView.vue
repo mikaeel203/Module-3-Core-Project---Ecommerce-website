@@ -135,7 +135,7 @@ export default {
 
         // Clear cart and redirect to confirmation page
         this.$store.dispatch('cart/clearCart');
-        this.$router.push({ path: `/order-confirmation}` });
+        this.$router.push({ path: `/order-confirmation/${this.order_id}` });
       } catch (err) {
         this.error = err.message || 'An error occurred. Please try again.';
       } finally {
