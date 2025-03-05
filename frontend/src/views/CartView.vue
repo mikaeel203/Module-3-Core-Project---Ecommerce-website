@@ -4,17 +4,12 @@
     <div v-if="loading">Loading cart...</div>
     <template v-else>
       <div v-if="cartItems.length > 0">
+        <!-- Cart Items -->
         <div v-for="item in cartItems" :key="item.cart_id" class="cart-item">
-          <!-- Display the first image of the product -->
           <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
-          
           <div class="item-details">
             <h3>{{ item.title }}</h3>
             <p>${{ formatPrice(item.price) }}</p>
-            <div class="item-options">
-              <p v-if="item.custom_color">Color: {{ item.custom_color }}</p>
-              <p v-if="item.custom_wood_type">Material: {{ item.custom_wood_type }}</p>
-            </div>
             <div class="quantity-controls">
               <button @click="updateQuantity(item.cart_id, item.quantity - 1)">-</button>
               <input type="number" v-model.number="item.quantity" min="1" />
@@ -23,13 +18,12 @@
           </div>
           <button @click="removeItem(item.cart_id)" class="remove-item">Remove</button>
         </div>
-        <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
-    <img :src="modalImageUrl" alt="Product Image" class="modal-image" />
-  </div>
+
+        <!-- Cart Summary -->
         <div class="cart-summary">
           <div class="summary-item">
             <p>Subtotal</p>
-            <p>R{{ formatPrice(cartSubtotal) }}</p>
+            <p>${{ formatPrice(cartSubtotal) }}</p>
           </div>
           <div class="summary-item">
             <p>Shipping</p>
@@ -37,12 +31,14 @@
           </div>
           <div class="summary-item">
             <p>Tax</p>
-            <p>R{{ formatPrice(cartTax) }}</p>
+            <p>${{ formatPrice(cartTax) }}</p>
           </div>
           <div class="summary-item total">
             <p>Total</p>
-            <p>R{{ formatPrice(cartTotal) }}</p>
+            <p>${{ formatPrice(cartTotal) }}</p>
           </div>
+
+          <!-- Proceed to Checkout Button -->
           <router-link to="/checkout" class="checkout-btn">Proceed to Checkout</router-link>
         </div>
       </div>
@@ -62,17 +58,37 @@ export default {
     };
   },
   computed: {
-    cartSubtotal() {
-      return this.cartItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
-    },
-    cartTax() {
-      return this.cartSubtotal * 0.08; // Assuming 8% tax rate
-    },
-    cartTotal() {
-      return this.cartSubtotal + this.cartTax;
-    },
+  cartSubtotal() {
+    return this.cartItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
   },
-  methods: {
+  cartTax() {
+    return this.cartSubtotal * 0.08; // Assuming 8% tax
+  },
+  cartTotal() {
+    // Ensure cartTotal is always a number
+    return (this.cartSubtotal + this.cartTax) || 0;
+  },
+},async created() {
+  await this.fetchCart();
+  this.loading = false;
+},
+methods: {
+  async fetchCart() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/cart`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch cart');
+      this.cartItems = await response.json();
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      this.cartItems = [];
+    }
+  },
     openImageModal(imageUrl) {
       this.modalImageUrl = imageUrl;
       this.showImageModal = true;
@@ -81,25 +97,9 @@ export default {
       this.showImageModal = false;
     },
     formatPrice(price) {
-      return parseFloat(price).toFixed(2); // Ensure price is a number and format it
+      return parseFloat(price).toFixed(2);
     },
-    async fetchCart() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/cart`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch cart');
-
-        this.cartItems = await response.json();
-      } catch (error) {
-        console.error('Error fetching cart:', error);
-        this.cartItems = [];
-      }
-    },
+   
     async updateQuantity(cart_id, newQuantity) {
       if (newQuantity < 1) return;
 
@@ -113,7 +113,7 @@ export default {
           },
           body: JSON.stringify({ quantity: newQuantity }),
         });
-        await this.fetchCart();
+        await this.fetchCart(); // Refresh cart after update
       } catch (error) {
         console.error('Error updating quantity:', error);
       }
@@ -125,7 +125,7 @@ export default {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` },
         });
-        await this.fetchCart();
+        await this.fetchCart(); // Refresh cart after removal
       } catch (error) {
         console.error('Error removing item:', error);
       }
@@ -133,7 +133,6 @@ export default {
   },
   async mounted() {
     await this.fetchCart();
-    this.loading = false;
   },
 };
 </script>
