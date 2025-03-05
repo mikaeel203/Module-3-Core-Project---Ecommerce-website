@@ -10,9 +10,10 @@ import Login from '@/views/LoginView.vue';
 import Register from '@/views/RegisterView.vue';
 import Profile from '@/views/ProfileView.vue';
 import AllProductsView from '@/views/AllProductsView.vue';
-import Checkout from '@/views/CheckoutView.vue';
+// import CheckoutView from '@/views/CheckoutView.vue';
 import OrderConfirmation from '@/views/OrderConfirmation.vue';
 import OrderHistory from '@/views/OrderHistory.vue';
+import CheckoutView from '@/views/CheckoutView.vue';
 
 const routes = [
   { path: '/', component: HomeView },
@@ -29,7 +30,7 @@ const routes = [
   {
     path: '/checkout',
     name: 'Checkout',
-    component: Checkout,
+    component: CheckoutView,
     meta: { requiresAuth: true },},
     {
       path: '/order-confirmation/:orderId',
