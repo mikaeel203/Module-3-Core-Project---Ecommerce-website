@@ -31,7 +31,11 @@ const routes = [
     name: 'Checkout',
     component: Checkout,
     meta: { requiresAuth: true },},
-  { path: '/order-confirmation', component: OrderConfirmation },
+    {
+      path: '/order-confirmation/:orderId',
+      component: OrderConfirmation,
+      meta: { requiresAuth: true }, // Optional: Add auth requirement if needed
+    },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: "/profile", component: Profile, meta: { requiresAuth: true } },

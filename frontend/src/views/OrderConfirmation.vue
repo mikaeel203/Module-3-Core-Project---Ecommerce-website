@@ -5,21 +5,26 @@
     <div v-else>
       <p>Thank you for your order! Your order has been placed successfully.</p>
 
+      <!-- Display order details if order exists -->
       <div v-if="order" class="order-details">
         <h3>Order Details</h3>
         <p><strong>Order ID:</strong> {{ order.order_id }}</p>
         <p><strong>Total:</strong> ${{ order.total?.toFixed(2) }}</p>
         <p><strong>Status:</strong> {{ order.status }}</p>
+
+        <!-- Display shipping details if shipping exists -->
+        <div v-if="order.shipping" class="shipping-details">
+          <h3>Shipping Details</h3>
+          <p><strong>Name:</strong> {{ order.shipping.name }}</p>
+          <p><strong>Address:</strong> {{ order.shipping.address }}</p>
+          <p><strong>City:</strong> {{ order.shipping.city }}</p>
+          <p><strong>State:</strong> {{ order.shipping.state }}</p>
+          <p><strong>Zip:</strong> {{ order.shipping.zip }}</p>
+        </div>
       </div>
 
-      <div v-if="order" class="shipping-details">
-        <h3>Shipping Details</h3>
-        <p><strong>Name:</strong> {{ order.shipping.name }}</p>
-        <p><strong>Address:</strong> {{ order.shipping.address }}</p>
-        <p><strong>City:</strong> {{ order.shipping.city }}</p>
-        <p><strong>State:</strong> {{ order.shipping.state }}</p>
-        <p><strong>Zip:</strong> {{ order.shipping.zip }}</p>
-      </div>
+      <!-- Display a message if order is not found -->
+      <p v-else>No order details found.</p>
 
       <router-link to="/" class="continue-shopping">Continue Shopping</router-link>
     </div>
@@ -37,8 +42,10 @@ export default {
     };
   },
   async created() {
-    const orderId = this.$route.params.orderId;
-    await this.fetchOrder(orderId);
+    const orderId = this.$route.params.orderId; // Get orderId from the route
+    if (orderId) {
+      await this.fetchOrder(orderId);
+    }
     this.loading = false;
   },
   methods: {
@@ -55,6 +62,7 @@ export default {
         this.order = await response.json();
       } catch (err) {
         console.error('Error fetching order:', err);
+        this.order = null; // Set order to null if fetching fails
       }
     },
   },
