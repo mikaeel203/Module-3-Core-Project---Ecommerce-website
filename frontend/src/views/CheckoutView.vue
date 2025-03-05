@@ -1,58 +1,6 @@
 <template>
   <div class="checkout-container">
     <h2>Checkout</h2>
-<<<<<<< HEAD
-
-    <!-- Shipping Details -->
-    <div class="checkout-section">
-      <h3>Shipping Details</h3>
-      <form @submit.prevent="goToPayment">
-        <input type="text" v-model="shipping.name" placeholder="Full Name" required />
-        <input type="text" v-model="shipping.address" placeholder="Address" required />
-        <input type="text" v-model="shipping.city" placeholder="City" required />
-        <input type="text" v-model="shipping.state" placeholder="State" required />
-        <input type="text" v-model="shipping.zip" placeholder="Zip Code" required />
-        <button type="submit">Next</button>
-      </form>
-    </div>
-
-    <!-- Payment Details -->
-    <div v-if="step === 2" class="checkout-section">
-      <h3>Payment Details</h3>
-      <form @submit.prevent="placeOrder">
-        <input type="text" v-model="payment.cardNumber" placeholder="Card Number" required />
-        <input type="text" v-model="payment.expiry" placeholder="Expiry Date (MM/YY)" required />
-        <input type="text" v-model="payment.cvv" placeholder="CVV" required />
-        <button type="submit">Place Order</button>
-      </form>
-    </div>
-
-    <!-- Order Summary -->
-    <div class="order-summary">
-      <h3>Order Summary</h3>
-      <div v-for="item in cartItems" :key="item.cart_id" class="order-item">
-        <p>{{ item.title }} (x{{ item.quantity }})</p>
-        <p>${{ formatPrice(item.price * item.quantity) }}</p>
-      </div>
-      <div class="summary-item">
-        <p>Subtotal</p>
-        <p>${{ formatPrice(cartSubtotal) }}</p>
-      </div>
-      <div class="summary-item">
-        <p>Tax</p>
-        <p>${{ formatPrice(cartTax) }}</p>
-      </div>
-      <div class="summary-item total">
-        <p>Total</p>
-        <p>${{ formatPrice(cartTotal) }}</p>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script>
-import { API_BASE_URL } from '@/config';
-=======
     <div class="checkout-steps">
       <!-- Step 1: Shipping Details -->
       <div v-if="step === 1" class="checkout-step">
@@ -101,16 +49,11 @@ import { API_BASE_URL } from '@/config';
 </template>
 
 <script>import { API_BASE_URL } from '@/config';
->>>>>>> 6c2ed804e222875e02598c6e6fe30f83366e2c08
 
 export default {
   data() {
     return {
-<<<<<<< HEAD
-      step: 1, // 1: Shipping, 2: Payment
-=======
       step: 1,
->>>>>>> 6c2ed804e222875e02598c6e6fe30f83366e2c08
       shipping: {
         name: '',
         address: '',

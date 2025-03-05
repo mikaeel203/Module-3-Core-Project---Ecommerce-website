@@ -105,7 +105,7 @@ methods: {
 
       try {
         const token = localStorage.getItem('token');
-        await fetch(`${API_BASE_URL}/cart/update/${cartId}`, {
+        await fetch(`${API_BASE_URL}/cart/update/${cart_id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -118,10 +118,10 @@ methods: {
         console.error('Error updating quantity:', error);
       }
     },
-    async removeItem(cartId) {
+    async removeItem(cart_id) {
       try {
         const token = localStorage.getItem('token');
-        await fetch(`${API_BASE_URL}/cart/remove/${cartId}`, {
+        await fetch(`${API_BASE_URL}/cart/remove/${cart_id}`, {
           method: 'DELETE',
           headers: { 'Authorization': `Bearer ${token}` },
         });
