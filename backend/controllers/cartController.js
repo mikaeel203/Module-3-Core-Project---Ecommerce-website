@@ -11,6 +11,9 @@ export const addToCart = async (req, res) => {
       return res.status(404).json({ error: 'Product not found.' });
     }
 
+    // Get the product price
+    const productPrice = product[0].price;
+
     // If customize_id is provided, validate it
     if (customize_id) {
       const [customization] = await db.query('SELECT * FROM customize WHERE customize_id = ?', [customize_id]);
@@ -19,12 +22,11 @@ export const addToCart = async (req, res) => {
       }
     }
 
-    // Insert into cart
+    // Insert into cart with price
     await db.query(
-      'INSERT INTO cart (user_id, product_id, customize_id, quantity) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?',
-      [user_id, product_id, customize_id || null, quantity, quantity]
+      'INSERT INTO cart (user_id, product_id, customize_id, quantity, price) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE quantity = quantity + ?',
+      [user_id, product_id, customize_id || null, quantity, productPrice, quantity]
     );
-
     res.status(201).json({ message: 'Added to cart' });
   } catch (err) {
     console.error(err);
