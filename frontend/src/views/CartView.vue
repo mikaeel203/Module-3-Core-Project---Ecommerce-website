@@ -62,17 +62,37 @@ export default {
     };
   },
   computed: {
-    cartSubtotal() {
-      return this.cartItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
-    },
-    cartTax() {
-      return this.cartSubtotal * 0.08; // Assuming 8% tax rate
-    },
-    cartTotal() {
-      return this.cartSubtotal + this.cartTax;
-    },
+  cartSubtotal() {
+    return this.cartItems.reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0);
   },
-  methods: {
+  cartTax() {
+    return this.cartSubtotal * 0.08; // Assuming 8% tax
+  },
+  cartTotal() {
+    // Ensure cartTotal is always a number
+    return (this.cartSubtotal + this.cartTax) || 0;
+  },
+},async created() {
+  await this.fetchCart();
+  this.loading = false;
+},
+methods: {
+  async fetchCart() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/cart`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch cart');
+      this.cartItems = await response.json();
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      this.cartItems = [];
+    }
+  },
     openImageModal(imageUrl) {
       this.modalImageUrl = imageUrl;
       this.showImageModal = true;
@@ -83,23 +103,7 @@ export default {
     formatPrice(price) {
       return parseFloat(price).toFixed(2); // Ensure price is a number and format it
     },
-    async fetchCart() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/cart`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch cart');
-
-        this.cartItems = await response.json();
-      } catch (error) {
-        console.error('Error fetching cart:', error);
-        this.cartItems = [];
-      }
-    },
+   
     async updateQuantity(cart_id, newQuantity) {
       if (newQuantity < 1) return;
 

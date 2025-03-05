@@ -1,0 +1,180 @@
+<template>
+  <div class="checkout-container">
+    <h2>Checkout</h2>
+    <div class="checkout-steps">
+      <!-- Step 1: Shipping Details -->
+      <div v-if="step === 1" class="checkout-step">
+        <h3>Shipping Details</h3>
+        <form @submit.prevent="goToStep(2)">
+          <input type="text" v-model="shipping.name" placeholder="Full Name" required />
+          <input type="text" v-model="shipping.address" placeholder="Address" required />
+          <input type="text" v-model="shipping.city" placeholder="City" required />
+          <input type="text" v-model="shipping.state" placeholder="State" required />
+          <input type="text" v-model="shipping.zip" placeholder="Zip Code" required />
+          <button type="submit">Next</button>
+        </form>
+      </div>
+
+      <!-- Step 2: Payment Details -->
+      <div v-if="step === 2" class="checkout-step">
+        <h3>Payment Details</h3>
+        <form @submit.prevent="goToStep(3)">
+          <input type="text" v-model="payment.cardNumber" placeholder="Card Number" required />
+          <input type="text" v-model="payment.expiry" placeholder="Expiry Date (MM/YY)" required />
+          <input type="text" v-model="payment.cvv" placeholder="CVV" required />
+          <button type="submit">Next</button>
+        </form>
+      </div>
+
+      <!-- Step 3: Review and Confirm -->
+      <div v-if="step === 3" class="checkout-step">
+        <h3>Review and Confirm</h3>
+        <div class="order-summary">
+          <h4>Order Summary</h4>
+          <div v-for="item in cartItems" :key="item.cart_id" class="order-item">
+            <p>{{ item.title }} (x{{ item.quantity }})</p>
+            <p>${{ item.price * item.quantity }}</p>
+          </div>
+          <p>Total: ${{ cartTotal.toFixed(2) }}</p>
+        </div>
+        <button @click="placeOrder" :disabled="isPlacingOrder">
+          {{ isPlacingOrder ? 'Placing Order...' : 'Place Order' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <p v-if="error" class="error-message">{{ error }}</p>
+  </div>
+</template>
+
+<script>import { API_BASE_URL } from '@/config';
+
+export default {
+  data() {
+    return {
+      step: 1,
+      shipping: {
+        name: '',
+        address: '',
+        city: '',
+        state: '',
+        zip: '',
+      },
+      payment: {
+        cardNumber: '',
+        expiry: '',
+        cvv: '',
+      },
+      error: '',
+      isPlacingOrder: false,
+      cartItems: [], // Add cartItems to data
+    };
+  },
+  computed: {
+    cartTotal() {
+      return this.cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    },
+  },
+  async created() {
+    await this.fetchCart(); // Fetch cart items when the component is created
+  },
+  methods: {
+    goToStep(step) {
+      this.step = step;
+    },
+    async fetchCart() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/cart`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) throw new Error('Failed to fetch cart');
+        this.cartItems = await response.json();
+      } catch (err) {
+        console.error('Error fetching cart:', err);
+        this.cartItems = [];
+      }
+    },
+    async placeOrder() {
+      this.error = '';
+      this.isPlacingOrder = true;
+
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          this.$router.push('/login');
+          return;
+        }
+
+        const order = {
+          shipping: this.shipping,
+          payment: this.payment,
+          items: this.cartItems, // Use this.cartItems instead of this.$store.getters['cart/cartItems']
+          total: this.cartTotal,
+        };
+
+        console.log('Order Payload:', order); // Log the payload
+
+        const response = await fetch(`${API_BASE_URL}/orders`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify(order),
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to place order');
+        }
+
+        // Clear cart and redirect to confirmation page
+        this.$store.dispatch('cart/clearCart');
+        this.$router.push('/order-confirmation');
+      } catch (err) {
+        this.error = err.message || 'An error occurred. Please try again.';
+      } finally {
+        this.isPlacingOrder = false;
+      }
+    },
+  },
+};
+</script>
+
+<style scoped>
+.checkout-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.checkout-steps {
+  margin-top: 20px;
+}
+
+.checkout-step {
+  margin-bottom: 20px;
+}
+
+.order-summary {
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.error-message {
+  color: #ff4d4d;
+  margin-top: 15px;
+}
+</style>
