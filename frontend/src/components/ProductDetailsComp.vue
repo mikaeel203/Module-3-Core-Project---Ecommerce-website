@@ -104,16 +104,13 @@ export default {
   },
   data() {
     return {
-      product: null, // Product details
-      mainImage: '', // Currently displayed main image
-      loading: false, // Loading state for add to cart
-      zoomLevel: 1, // Current zoom level (1 = no zoom)
-      maxZoom: 3, // Maximum zoom level
-      minZoom: 1 ,
+      product: null,
+      mainImage: '',
       reviews: [],
       newReview: {
         rating: 5,
-        comment: ''}
+        comment: ''
+      }
     };
   },
   async created() {
@@ -132,6 +129,32 @@ export default {
     await this.fetchReviews();
   },
   methods: {
+    async fetchReviews() {
+      const productId = this.$route.params.id;
+      const response = await fetch(`${API_BASE_URL}/reviews/${productId}`);
+      if (response.ok) {
+        this.reviews = await response.json();
+      }
+    },
+    async submitReview() {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          product_id: this.$route.params.id,
+          rating: this.newReview.rating,
+          comment: this.newReview.comment,
+        }),
+      });
+      if (response.ok) {
+        this.newReview = { rating: 5, comment: '' };
+        await this.fetchReviews();
+      }
+    },
+
     zoomIn() {
       if (this.zoomLevel < this.maxZoom) {
         this.zoomLevel += 0.5;
@@ -187,32 +210,6 @@ export default {
       }
     },
   },
-  async fetchReviews() {
-      const productId = this.$route.params.id;
-      const response = await fetch(`${API_BASE_URL}/reviews/${productId}`);
-      if (response.ok) {
-        this.reviews = await response.json();
-      }
-    },
-    async submitReview() {
-      const response = await fetch(`${API_BASE_URL}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          product_id: this.$route.params.id,
-          rating: this.newReview.rating,
-          comment: this.newReview.comment,
-        }),
-      });
-      if (response.ok) {
-        this.newReview = { rating: 5, comment: '' };
-        await this.fetchReviews();
-      }
-    },
-  
 };
 </script>
 <style scoped>
