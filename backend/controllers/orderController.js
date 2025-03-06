@@ -82,7 +82,7 @@ export const placeOrder = async (req, res) => {
     if (connection) connection.release();
   }
 
-   return order_id;
+  //  return order_id;
 };
 export const getOrders = async (req, res) => {
   const { user_id } = req.params;

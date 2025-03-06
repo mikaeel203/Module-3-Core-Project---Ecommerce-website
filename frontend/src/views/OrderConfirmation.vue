@@ -7,24 +7,24 @@
 
       <!-- Display order details if order exists -->
       <div v-if="order" class="order-details">
-        <h3>Order Details</h3>
+        <!-- <h3>Order Details</h3>
         <p><strong>Order ID:</strong> {{ order.order_id }}</p>
         <p><strong>Total:</strong> ${{ order.total?.toFixed(2) }}</p>
-        <p><strong>Status:</strong> {{ order.status }}</p>
+        <p><strong>Status:</strong> {{ order.status }}</p> -->
 
         <!-- Display shipping details if shipping exists -->
         <div v-if="order.shipping" class="shipping-details">
-          <h3>Shipping Details</h3>
+          <!-- <h3>Shipping Details</h3>
           <p><strong>Name:</strong> {{ order.shipping.name }}</p>
           <p><strong>Address:</strong> {{ order.shipping.address }}</p>
           <p><strong>City:</strong> {{ order.shipping.city }}</p>
           <p><strong>State:</strong> {{ order.shipping.state }}</p>
-          <p><strong>Zip:</strong> {{ order.shipping.zip }}</p>
+          <p><strong>Zip:</strong> {{ order.shipping.zip }}</p> -->
         </div>
       </div>
 
       <!-- Display a message if order is not found -->
-      <p v-else>No order details found.</p>
+      <!-- <p v-else>No order details found.</p> -->
 
       <router-link to="/" class="continue-shopping">Continue Shopping</router-link>
     </div>
