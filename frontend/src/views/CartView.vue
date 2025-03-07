@@ -9,7 +9,7 @@
           <img :src="item.image_url" :alt="item.title" class="cart-item-image" />
           <div class="item-details">
             <h3>{{ item.title }}</h3>
-            <p>${{ formatPrice(item.price) }}</p>
+            <p>R{{ formatPrice(item.price) }}</p>
             <div class="quantity-controls">
               <button @click="updateQuantity(item.cart_id, item.quantity - 1)">-</button>
               <input type="number" v-model.number="item.quantity" min="1" />
