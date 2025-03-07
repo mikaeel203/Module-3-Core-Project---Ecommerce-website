@@ -40,7 +40,11 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: "/profile", component: Profile, meta: { requiresAuth: true } },
-  { path: '/order-history', component: OrderHistory, meta: { requiresAuth: true } },
+  { path: '/order-history', component: OrderHistory, meta: { requiresAuth: true } }, {
+    path: '/admin/dashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, requiresAdmin: true }, // Add admin check
+  },
 ];
 
 const router = createRouter({
@@ -50,8 +54,12 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = !!localStorage.getItem('token');
+  const userRole = localStorage.getItem('role'); // Assuming you store the role in localStorage
+
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login');
+  } else if (to.meta.requiresAdmin && userRole !== 'admin') {
+    next('/'); // Redirect non-admins to the home page
   } else {
     next();
   }

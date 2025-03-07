@@ -40,7 +40,10 @@ app.use((err, req, res, next) => {
 });
 
 import db from './config/db.js';
+import adminRoutes from './routes/adminRoutes.js';
 
+// Mount admin routes
+app.use('/api/admin', adminRoutes);
 // Test database connection
 const testConnection = async () => {
     try {
