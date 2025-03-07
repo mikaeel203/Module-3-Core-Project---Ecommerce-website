@@ -27,10 +27,14 @@ export const login = async (req, res) => {
     if (!validPassword) return res.status(400).send('Invalid password');
 
     // Generate a JWT token
-    const token = jwt.sign({ id: user[0].user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(
+      { id: user[0].user_id, role: user[0].role }, // Include the user's role in the token
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-    // Send the token in the response
-    res.header('Authorization', `Bearer ${token}`).send({ token });
+    // Send the token and role in the response
+    res.header('Authorization', `Bearer ${token}`).send({ token, role: user[0].role });
   } catch (err) {
     res.status(500).send(err);
   }

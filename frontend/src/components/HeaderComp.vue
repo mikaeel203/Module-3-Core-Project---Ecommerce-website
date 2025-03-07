@@ -22,10 +22,14 @@
 
         <!-- Profile Icon or Login/Register Buttons -->
         <template v-if="isAuthenticated">
+          <!-- Admin Dashboard Link -->
+          <router-link v-if="isAdmin" to="/admin/dashboard" class="admin-dashboard-link">
+            <i class="bi bi-speedometer2"></i> Admin Dashboard
+          </router-link>
           <!-- Profile Icon -->
           <router-link to="/profile"><i class="bi bi-person-circle"></i></router-link>
           <!-- Logout Button -->
-          <button @click="logout" class="logout-btn">Logout</button>
+          <button @click="handleLogout" class="logout-btn">Logout</button>
         </template>
         <template v-else>
           <!-- Login and Register Buttons -->
@@ -42,13 +46,18 @@ import { mapGetters, mapActions } from 'vuex';
 
 export default {
   computed: {
-    ...mapGetters(['isAuthenticated']), // Use Vuex getter for authentication state
+    ...mapGetters(['isAuthenticated', 'isAdmin']), // Use Vuex getters
   },
   methods: {
-    ...mapActions(['logout']), // Use Vuex action for logout
+  ...mapActions(['logout']),
+  handleLogout() {
+    this.logout(); // Call the logout action
+    this.$router.push('/login'); // Redirect to the login page
   },
+},
 };
 </script>
+
 
 <style scoped>
 /* .header {

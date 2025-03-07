@@ -67,8 +67,14 @@ methods: {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('token', data.token); // Store the token
-        this.$store.dispatch('login'); // Update Vuex store
-        this.$router.push('/'); // Redirect to home
+        localStorage.setItem('role', data.role); // Store the user's role
+
+        // Redirect based on the user's role
+        if (data.role === 'admin') {
+          this.$router.push('/admin/dashboard'); // Redirect admins to the admin dashboard
+        } else {
+          this.$router.push('/'); // Redirect regular users to the home page
+        }
       } else {
         this.error = 'Login failed. Please try again.';
       }

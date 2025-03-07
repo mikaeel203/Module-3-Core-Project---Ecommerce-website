@@ -69,6 +69,26 @@
 
     <!-- Loading State -->
     <div v-else class="loading">Loading product details...</div>
+    <div class="reviews-section">
+      <h3>Reviews</h3>
+      <div v-if="reviews.length > 0">
+        <div v-for="review in reviews" :key="review.review_id" class="review-item">
+          <p><strong>Rating:</strong> {{ review.rating }}/5</p>
+          <p>{{ review.comment }}</p>
+          <p><small>By: User {{ review.user_id }}</small></p>
+        </div>
+      </div>
+      <p v-else>No reviews yet.</p>
+
+      <!-- Add Review Form -->
+      <form @submit.prevent="submitReview">
+        <label for="rating">Rating:</label>
+        <input type="number" id="rating" v-model="newReview.rating" min="1" max="5" required />
+        <label for="comment">Comment:</label>
+        <textarea id="comment" v-model="newReview.comment" required></textarea>
+        <button type="submit">Submit Review</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -84,12 +104,13 @@ export default {
   },
   data() {
     return {
-      product: null, // Product details
-      mainImage: '', // Currently displayed main image
-      loading: false, // Loading state for add to cart
-      zoomLevel: 1, // Current zoom level (1 = no zoom)
-      maxZoom: 3, // Maximum zoom level
-      minZoom: 1 
+      product: null,
+      mainImage: '',
+      reviews: [],
+      newReview: {
+        rating: 5,
+        comment: ''
+      }
     };
   },
   async created() {
@@ -105,8 +126,35 @@ export default {
     } catch (error) {
       console.error("Error fetching product details:", error);
     }
+    await this.fetchReviews();
   },
   methods: {
+    async fetchReviews() {
+      const productId = this.$route.params.id;
+      const response = await fetch(`${API_BASE_URL}/reviews/${productId}`);
+      if (response.ok) {
+        this.reviews = await response.json();
+      }
+    },
+    async submitReview() {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          product_id: this.$route.params.id,
+          rating: this.newReview.rating,
+          comment: this.newReview.comment,
+        }),
+      });
+      if (response.ok) {
+        this.newReview = { rating: 5, comment: '' };
+        await this.fetchReviews();
+      }
+    },
+
     zoomIn() {
       if (this.zoomLevel < this.maxZoom) {
         this.zoomLevel += 0.5;
@@ -166,6 +214,25 @@ export default {
 </script>
 
 <style scoped>
+.reviews-section {
+  margin-top: 20px;
+}
+
+.review-item {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+form {
+  margin-top: 20px;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
 .product-detail-container {
   max-width: 1200px;
   margin: 0 auto;
