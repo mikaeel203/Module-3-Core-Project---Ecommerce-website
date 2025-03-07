@@ -23,19 +23,19 @@
         <div class="cart-summary">
           <div class="summary-item">
             <p>Subtotal</p>
-            <p>${{ formatPrice(cartSubtotal) }}</p>
+            <p>R{{ formatPrice(cartSubtotal) }}</p>
           </div>
-          <div class="summary-item">
+          <!-- <div class="summary-item">
             <p>Shipping</p>
             <p>Free</p>
-          </div>
+          </div> -->
           <div class="summary-item">
             <p>Tax</p>
-            <p>${{ formatPrice(cartTax) }}</p>
+            <p>R{{ formatPrice(cartTax) }}</p>
           </div>
           <div class="summary-item total">
             <p>Total</p>
-            <p>${{ formatPrice(cartTotal) }}</p>
+            <p>R{{ formatPrice(cartTotal) }}</p>
           </div>
 
           <!-- Proceed to Checkout Button -->

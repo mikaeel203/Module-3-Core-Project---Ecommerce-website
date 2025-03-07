@@ -141,24 +141,35 @@ const store = createStore({
 
   state: {
     isAuthenticated: !!localStorage.getItem('token'), // Initialize based on token presence
+    userRole: localStorage.getItem('role') || 'user', // Initialize user role
   },
   mutations: {
     SET_AUTH(state, isAuthenticated) {
       state.isAuthenticated = isAuthenticated;
     },
+    SET_ROLE(state, role) {
+      state.userRole = role;
+    },
   },
   actions: {
-    login({ commit }) {
-      commit('SET_AUTH', true);
+    login({ commit }, { token, role }) {
+      localStorage.setItem('token', token); // Store the token
+      localStorage.setItem('role', role); // Store the user's role
+      commit('SET_AUTH', true); // Update authentication state
+      commit('SET_ROLE', role); // Update user role
     },
     logout({ commit }) {
-      localStorage.removeItem('token');
-      commit('SET_AUTH', false);
+      localStorage.removeItem('token'); // Remove the token
+      localStorage.removeItem('role'); // Remove the user's role
+      commit('SET_AUTH', false); // Update authentication state
+      commit('SET_ROLE', 'user'); // Reset user role
     },
   },
   getters: {
     isAuthenticated: (state) => state.isAuthenticated,
+    isAdmin: (state) => state.userRole === 'admin',
   },
 });
+
 
 export default store;

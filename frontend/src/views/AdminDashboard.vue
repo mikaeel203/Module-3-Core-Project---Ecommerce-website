@@ -65,8 +65,12 @@
       };
     },
     async created() {
-      await this.fetchProductStats();
-    },
+  const userRole = localStorage.getItem('role');
+  if (userRole !== 'admin') {
+    this.$router.push('/'); // Redirect non-admins to the home page
+  }
+  await this.fetchProductStats();
+},
     methods: {
       async fetchProductStats() {
         try {

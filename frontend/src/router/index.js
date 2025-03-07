@@ -14,6 +14,7 @@ import AllProductsView from '@/views/AllProductsView.vue';
 import OrderConfirmation from '@/views/OrderConfirmation.vue';
 import OrderHistory from '@/views/OrderHistory.vue';
 import CheckoutView from '@/views/CheckoutView.vue';
+import AdminDashboard from '@/views/AdminDashboard.vue';
 
 const routes = [
   { path: '/', component: HomeView },
@@ -54,14 +55,14 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = !!localStorage.getItem('token');
-  const userRole = localStorage.getItem('role'); // Assuming you store the role in localStorage
+  const userRole = localStorage.getItem('role'); // Get the user's role from localStorage
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+    next('/login'); // Redirect to login if not authenticated
   } else if (to.meta.requiresAdmin && userRole !== 'admin') {
     next('/'); // Redirect non-admins to the home page
   } else {
-    next();
+    next(); // Allow access
   }
 });
 
