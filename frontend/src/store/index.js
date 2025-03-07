@@ -99,6 +99,25 @@ const store = createStore({
             commit('SET_LOADING', false);
           }
         },
+        async clearCart({ commit, dispatch }, user_id) {
+          commit('SET_LOADING', true);
+          try {
+            const response = await fetch(`${API_BASE_URL}/cart/removeall/${user_id}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`,
+              },
+            });
+
+            if (!response.ok) throw new Error('Failed to remove from cart');
+
+            await dispatch('fetchCart'); // Refresh cart after removal
+          } catch (error) {
+            console.error('Error removing from cart:', error);
+          } finally {
+            commit('SET_LOADING', false);
+          }
+        },
         async updateQuantity({ commit, dispatch }, { cartId, quantity }) {
           commit('SET_LOADING', true);
           try {
@@ -120,10 +139,10 @@ const store = createStore({
             commit('SET_LOADING', false);
           }
         },
-        clearCart({ commit }) {
-          console.log('Dispatching clearCart action...'); // Debugging
-          commit('CLEAR_CART'); // Clear the cart
-        },
+        // clearCart({ commit }) {
+        //   console.log('Dispatching clearCart action...'); // Debugging
+        //   commit('CLEAR_CART'); // Clear the cart
+        // },
       },
       getters: {
         cartItems(state) {

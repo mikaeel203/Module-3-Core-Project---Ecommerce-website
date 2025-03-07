@@ -47,6 +47,18 @@ export const removeFromCart = async (req, res) => {
   }
 };
 
+export const removeAllFromCart = async (req, res) => {
+  const user_id = req.user.id;
+
+  try {
+    await db.query('DELETE FROM cart WHERE user_id = ?', [user_id]);
+    res.status(200).json({ message: 'Removed from cart' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to remove from cart.' });
+  }
+}
+
 
 export const getCart = async (req, res) => {
   const user_id = req.user.id;
