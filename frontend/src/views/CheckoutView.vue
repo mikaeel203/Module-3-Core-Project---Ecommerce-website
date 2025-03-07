@@ -14,7 +14,6 @@
           <button type="submit">Next</button>
         </form>
       </div>
-
       <!-- Step 2: Payment Details -->
       <div v-if="step === 2" class="checkout-step">
         <h3>Payment Details</h3>
@@ -25,7 +24,6 @@
           <button type="submit">Next</button>
         </form>
       </div>
-
       <!-- Step 3: Review and Confirm -->
       <div v-if="step === 3" class="checkout-step">
         <h3>Review and Confirm</h3>
@@ -33,23 +31,20 @@
           <h4>Order Summary</h4>
           <div v-for="item in cartItems" :key="item.cart_id" class="order-item">
             <p>{{ item.title }} (x{{ item.quantity }})</p>
-            <p>${{ item.price * item.quantity }}</p>
+            <p>R{{ item.price * item.quantity }}</p>
           </div>
-          <p>Total: ${{ cartTotal.toFixed(2) }}</p>
+          <p>Total: R{{ cartTotal.toFixed(2) }}</p>
         </div>
         <button @click="placeOrder" :disabled="isPlacingOrder">
           {{ isPlacingOrder ? 'Placing Order...' : 'Place Order' }}
         </button>
       </div>
     </div>
-
     <!-- Error Message -->
     <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
-
 <script>import { API_BASE_URL } from '@/config';
-
 export default {
   data() {
     return {
@@ -91,7 +86,6 @@ export default {
             'Authorization': `Bearer ${token}`,
           },
         });
-
         if (!response.ok) throw new Error('Failed to fetch cart');
         this.cartItems = await response.json();
       } catch (err) {
@@ -100,81 +94,77 @@ export default {
       }
     },
     async placeOrder() {
-      this.error = '';
-      this.isPlacingOrder = true;
-
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          this.$router.push('/login');
-          return;
-        }
-
-        const order = {
-          shipping: this.shipping,
-          payment: this.payment,
-          items: this.cartItems, // Use this.cartItems instead of this.$store.getters['cart/cartItems']
-          total: this.cartTotal,
-        };
-
-        console.log('Order Payload:', order); // Log the payload
-
-        const response = await fetch(`${API_BASE_URL}/orders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(order),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to place order');
-        }
-
-        // Clear cart and redirect to confirmation page
-        this.$store.dispatch('cart/clearCart');
-        this.$router.push({ path: `/order-confirmation/${this.order_id}` });
-      } catch (err) {
-        this.error = err.message || 'An error occurred. Please try again.';
-      } finally {
-        this.isPlacingOrder = false;
+    this.error = '';
+    this.isPlacingOrder = true;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.$router.push('/login');
+        return;
       }
-    },
+      const order = {
+        shipping: this.shipping,
+        payment: this.payment,
+        items: this.cartItems,
+        total: this.cartTotal,
+      };
+      const response = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(order),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to place order');
+      }
+      const orderData = await response.json();
+      // Debugging: Log before clearing the cart
+      console.log('Clearing cart...');
+      // Clear the cart
+      await this.$store.dispatch('cart/clearCart');
+      // Debugging: Log after clearing the cart
+      console.log('Cart cleared.');
+      // Redirect to the order confirmation page
+      this.$router.push({
+        path: `/order-confirmation/${orderData.order_id}`,
+        query: { order: JSON.stringify(orderData) },
+      });
+    } catch (err) {
+      this.error = err.message || 'An error occurred. Please try again.';
+    } finally {
+      this.isPlacingOrder = false;
+    }
+  },
   },
 };
 </script>
-
 <style scoped>
 .checkout-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
 }
-
 .checkout-steps {
   margin-top: 20px;
 }
-
 .checkout-step {
   margin-bottom: 20px;
 }
-
 .order-summary {
   border: 1px solid #ddd;
   padding: 20px;
   margin-bottom: 20px;
 }
-
 .order-item {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
 }
-
 .error-message {
-  color: #ff4d4d;
+  color: #FF4D4D;
   margin-top: 15px;
 }
 </style>

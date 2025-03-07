@@ -67,36 +67,75 @@
   </script>
   
   <style scoped>
+ .search-and-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: center;
+  padding: 15px;
+}
+
+.search-input,
+.filter-select,
+.price-input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-input {
+  flex: 1;
+}
+
+.filter-select {
+  min-width: 150px;
+  background: white;
+  cursor: pointer;
+}
+
+.price-range {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.price-input {
+  width: 120px;
+}
+
+.search-input:focus,
+.filter-select:focus,
+.price-input:focus {
+  border-color: #1a2940;
+  outline: none;
+  box-shadow: 0 0 8px rgba(26, 41, 64, 0.3);
+}
+
+.filter-select:hover,
+.price-input:hover,
+.search-input:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
   .search-and-filter {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  .search-input {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .filter-select {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
+
   .price-range {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
   }
-  
+
   .price-input {
-    width: 100px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    width: 100%;
   }
+}
+
   </style>

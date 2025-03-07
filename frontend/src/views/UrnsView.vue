@@ -370,7 +370,9 @@ export default {
     font-size: 0.9rem;
     color: #ccc;
   }
-  
+  .catalog-page{
+    padding-top: 100px
+  }
   /* Responsive Design */
   @media (max-width: 768px) {
     .product-grid {

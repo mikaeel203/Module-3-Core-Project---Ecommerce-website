@@ -115,7 +115,10 @@ export default {
 .profile-container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 100px;
 }
 
 .form-group {

@@ -14,6 +14,7 @@ import AllProductsView from '@/views/AllProductsView.vue';
 import OrderConfirmation from '@/views/OrderConfirmation.vue';
 import OrderHistory from '@/views/OrderHistory.vue';
 import CheckoutView from '@/views/CheckoutView.vue';
+import AdminDashboard from '@/views/AdminDashboard.vue';
 
 const routes = [
   { path: '/', component: HomeView },
@@ -40,7 +41,11 @@ const routes = [
   { path: '/login', component: Login },
   { path: '/register', component: Register },
   { path: "/profile", component: Profile, meta: { requiresAuth: true } },
-  { path: '/order-history', component: OrderHistory, meta: { requiresAuth: true } },
+  { path: '/order-history', component: OrderHistory, meta: { requiresAuth: true } }, {
+    path: '/admin/dashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, requiresAdmin: true }, // Add admin check
+  },
 ];
 
 const router = createRouter({
@@ -50,10 +55,14 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = !!localStorage.getItem('token');
+  const userRole = localStorage.getItem('role'); // Get the user's role from localStorage
+
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+    next('/login'); // Redirect to login if not authenticated
+  } else if (to.meta.requiresAdmin && userRole !== 'admin') {
+    next('/'); // Redirect non-admins to the home page
   } else {
-    next();
+    next(); // Allow access
   }
 });
 

@@ -101,6 +101,7 @@
     margin: 0 auto;
     padding: 20px;
     text-align: center;
+    padding-top: 100px !important;
   }
   
   .form-group {

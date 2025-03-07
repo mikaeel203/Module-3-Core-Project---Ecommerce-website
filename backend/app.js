@@ -8,6 +8,7 @@ import cartRoutes from './routes/cartRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import payplanRoutes from './routes/payplanRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 dotenv.config();
 
@@ -23,6 +24,8 @@ app.use(express.json());
 // Serve static files (e.g., uploaded images)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+// Mount routes
+app.use('/api/reviews', reviewRoutes);
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -38,7 +41,10 @@ app.use((err, req, res, next) => {
 });
 
 import db from './config/db.js';
+import adminRoutes from './routes/adminRoutes.js';
 
+// Mount admin routes
+app.use('/api/admin', adminRoutes);
 // Test database connection
 const testConnection = async () => {
     try {

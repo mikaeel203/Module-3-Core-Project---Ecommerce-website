@@ -5,16 +5,25 @@
     <div v-else>
       <p>Thank you for your order! Your order has been placed successfully.</p>
 
-      <!-- Display order details if order exists -->
+      <!-- Display order details -->
       <div v-if="order" class="order-details">
         <h3>Order Details</h3>
         <p><strong>Order ID:</strong> {{ order.order_id }}</p>
-        <p><strong>Total:</strong> ${{ order.total?.toFixed(2) }}</p>
-        <p><strong>Status:</strong> {{ order.status }}</p>
+        <p><strong>Total:</strong> R{{ Number(order.total).toFixed(2) }}</p>
+        <p><strong>Status:</strong> {{ order.status || 'Pending' }}</p>
 
-        <!-- Display shipping details if shipping exists -->
+        <!-- Display order items -->
+        <div v-if="order.items && order.items.length > 0">
+          <h4>Items:</h4>
+          <div v-for="item in order.items" :key="item.product_id" class="order-item">
+            <p>{{ item.title }} (x{{ item.quantity }})</p>
+            <p>${{ (Number(item.price) * item.quantity).toFixed(2) }}</p>
+          </div>
+        </div>
+
+        <!-- Display shipping details -->
         <div v-if="order.shipping" class="shipping-details">
-          <h3>Shipping Details</h3>
+          <h4>Shipping Details:</h4>
           <p><strong>Name:</strong> {{ order.shipping.name }}</p>
           <p><strong>Address:</strong> {{ order.shipping.address }}</p>
           <p><strong>City:</strong> {{ order.shipping.city }}</p>
@@ -23,48 +32,26 @@
         </div>
       </div>
 
-      <!-- Display a message if order is not found -->
-      <p v-else>No order details found.</p>
-
+      <!-- Continue shopping button -->
       <router-link to="/" class="continue-shopping">Continue Shopping</router-link>
     </div>
   </div>
 </template>
 
 <script>
-import { API_BASE_URL } from '@/config';
-
 export default {
   data() {
     return {
-      order: null, // Initialize order as null
-      loading: true, // Add a loading state
+      order: null, // Order details
+      loading: true, // Loading state
     };
   },
   async created() {
-    const orderId = this.$route.params.orderId; // Get orderId from the route
-    if (orderId) {
-      await this.fetchOrder(orderId);
+    // Retrieve the order details from the route query
+    if (this.$route.query.order) {
+      this.order = JSON.parse(this.$route.query.order);
     }
     this.loading = false;
-  },
-  methods: {
-    async fetchOrder(orderId) {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`${API_BASE_URL}/orders/${orderId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch order details');
-        this.order = await response.json();
-      } catch (err) {
-        console.error('Error fetching order:', err);
-        this.order = null; // Set order to null if fetching fails
-      }
-    },
   },
 };
 </script>
@@ -73,7 +60,10 @@ export default {
 .order-confirmation {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 100px;
   text-align: center;
 }
 
