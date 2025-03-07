@@ -33,9 +33,9 @@
           <h4>Order Summary</h4>
           <div v-for="item in cartItems" :key="item.cart_id" class="order-item">
             <p>{{ item.title }} (x{{ item.quantity }})</p>
-            <p>${{ item.price * item.quantity }}</p>
+            <p>R{{ item.price * item.quantity }}</p>
           </div>
-          <p>Total: ${{ cartTotal.toFixed(2) }}</p>
+          <p>Total: R{{ cartTotal.toFixed(2) }}</p>
         </div>
         <button @click="placeOrder" :disabled="isPlacingOrder">
           {{ isPlacingOrder ? 'Placing Order...' : 'Place Order' }}
