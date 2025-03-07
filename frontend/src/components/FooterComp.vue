@@ -54,7 +54,7 @@ export default {
   margin-top: 40px;
   width: 100%;
   font-family: "Arial", sans-serif;
-
+  
 }
 
 .footer-sections {
