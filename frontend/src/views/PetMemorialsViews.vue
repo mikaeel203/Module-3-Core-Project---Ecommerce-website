@@ -65,6 +65,9 @@ export default {
     box-sizing: border-box;
     font-family: 'Roboto', sans-serif;
   }
+  .catalog-page{
+    padding-top: 100px
+  }
   
   body {
     background-color: #f8f9fa;

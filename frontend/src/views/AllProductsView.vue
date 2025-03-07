@@ -1,5 +1,14 @@
 <template>
     <div class="all-products-view">
+
+      <!-- Search and Filter -->
+      <SearchAndFilter
+        @search="handleSearch"
+        @filter-category="handleCategoryFilter"
+        @filter-price="handlePriceFilter"
+      />
+
+
       <!-- Back Navigation -->
       <div class="container">
         <div class="back-nav">
@@ -7,12 +16,7 @@
         </div>
       </div>
   
-      <!-- Search and Filter -->
-      <SearchAndFilter
-        @search="handleSearch"
-        @filter-category="handleCategoryFilter"
-        @filter-price="handlePriceFilter"
-      />
+      
   
       <!-- Product Catalog Section -->
       <section class="catalog">
@@ -102,7 +106,10 @@
   
   <style scoped>
   .all-products-view {
-    padding: 20px 0;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 100px
   }
   
   .container {
@@ -112,7 +119,9 @@
   }
   
   .back-nav {
-    margin-bottom: 20px;
+    position: relative;
+    overflow: visible;
+    left: -30px !important;
   }
   
   .back-link {

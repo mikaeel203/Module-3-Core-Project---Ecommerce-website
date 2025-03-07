@@ -85,6 +85,7 @@ methods: {
 .login-container {
   max-width: 400px;
   margin: 0 auto;
+  padding-top: 100px !important;
   padding: 20px;
   text-align: center;
 }

@@ -1,23 +1,15 @@
--- Drop existing schema if it exists
-DROP SCHEMA IF EXISTS `eternal_rest_db`; 
-CREATE SCHEMA `eternal_rest_db`; 
-USE eternal_rest_db;
-
--- Users Table (Renamed from 'customers' to 'users' to match your schema)
 DROP TABLE IF EXISTS `users`;
-
 CREATE TABLE `users` (
   `user_id` INT NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(50) NOT NULL UNIQUE,
-  `phone` VARCHAR(20) UNIQUE,
   `password` VARCHAR(255) NOT NULL,
+  `name` VARCHAR(100),
+  `phone` VARCHAR(20) UNIQUE,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`user_id`)
 );
-
 -- Products Table
 DROP TABLE IF EXISTS `products`;
-
 CREATE TABLE `products` (
   `product_id` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(100) NOT NULL,
@@ -30,10 +22,17 @@ CREATE TABLE `products` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_id`)
 );
-
+-- Product Images Table
+DROP TABLE IF EXISTS `product_images`;
+CREATE TABLE `product_images` (
+  `image_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `product_id` INT NOT NULL,
+  `image_url` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON DELETE CASCADE
+);
 -- Customization Table
 DROP TABLE IF EXISTS `customize`;
-
 CREATE TABLE `customize` (
   `customize_id` INT NOT NULL AUTO_INCREMENT,
   `product_id` INT NOT NULL,
@@ -44,25 +43,43 @@ CREATE TABLE `customize` (
   PRIMARY KEY (`customize_id`),
   FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON DELETE CASCADE
 );
-
+-- Cart Table
+DROP TABLE IF EXISTS `cart`;
+CREATE TABLE `cart` (
+  `cart_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL,
+  `product_id` INT NOT NULL, -- Add product_id for non-customized products
+  `customize_id` INT NULL,   -- Make customize_id optional
+  `quantity` INT NOT NULL CHECK (quantity > 0),
+  `added_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`customize_id`) REFERENCES `customize`(`customize_id`) ON DELETE CASCADE
+);
 -- Orders Table
 DROP TABLE IF EXISTS `orders`;
-
 CREATE TABLE `orders` (
   `order_id` INT NOT NULL AUTO_INCREMENT,
-  `customize_id` INT NOT NULL,
   `user_id` INT NOT NULL,
-  `quantity` INT NOT NULL CHECK (quantity > 0),
+  `total` DECIMAL(10,2) NOT NULL,
   `order_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `status` ENUM('Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled') DEFAULT 'Pending',
   PRIMARY KEY (`order_id`),
-  CONSTRAINT `fk_customize_id` FOREIGN KEY (`customize_id`) REFERENCES `customize`(`customize_id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_user_id` FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE
 );
-
+-- Order Items Table
+DROP TABLE IF EXISTS `order_items`;
+CREATE TABLE `order_items` (
+  `order_item_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `order_id` INT NOT NULL,
+  `customize_id` INT NOT NULL,
+  `quantity` INT NOT NULL CHECK (quantity > 0),
+  `price` DECIMAL(10,2) NOT NULL,
+  FOREIGN KEY (`order_id`) REFERENCES `orders`(`order_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`customize_id`) REFERENCES `customize`(`customize_id`) ON DELETE CASCADE
+);
 -- Wishlist Table
 DROP TABLE IF EXISTS `wishlist`;
-
 CREATE TABLE `wishlist` (
   `wish_id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
@@ -72,10 +89,8 @@ CREATE TABLE `wishlist` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
   FOREIGN KEY (`customize_id`) REFERENCES `customize`(`customize_id`) ON DELETE CASCADE
 );
-
 -- Previously Viewed Items Table
 DROP TABLE IF EXISTS `viewed_items`;
-
 CREATE TABLE `viewed_items` (
   `view_id` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
@@ -85,14 +100,3 @@ CREATE TABLE `viewed_items` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`user_id`) ON DELETE CASCADE,
   FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON DELETE CASCADE
 );
-
--- Insert Sample User
-INSERT INTO `users` (`email`, `password`) VALUES ('juan@gmail.com', 'My name is Zwuan');
-
--- Sample Queries
--- SELECT * FROM `users`;
--- SELECT * FROM `products`;
--- SELECT * FROM `customize`;
--- SELECT * FROM `orders`;
--- SELECT * FROM `wishlist`;
--- SELECT * FROM `viewed_items`;

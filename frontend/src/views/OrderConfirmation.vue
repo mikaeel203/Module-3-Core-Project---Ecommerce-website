@@ -73,7 +73,10 @@ export default {
 .order-confirmation {
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  padding-top: 100px;
   text-align: center;
 }
 

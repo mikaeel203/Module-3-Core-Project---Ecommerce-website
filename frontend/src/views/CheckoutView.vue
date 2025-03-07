@@ -18,7 +18,7 @@
       <!-- Step 2: Payment Details -->
       <div v-if="step === 2" class="checkout-step">
         <h3>Payment Details</h3>
-        <form @submit.prevent="goToStep(3)">
+        <form @submit.prevent="validateAndProceed">
           <input type="text" v-model="payment.cardNumber" placeholder="Card Number" required />
           <input type="text" v-model="payment.expiry" placeholder="Expiry Date (MM/YY)" required />
           <input type="text" v-model="payment.cvv" placeholder="CVV" required />
@@ -37,6 +37,7 @@
           </div>
           <p>Total: ${{ cartTotal.toFixed(2) }}</p>
         </div>
+        <br>
         <button @click="placeOrder" :disabled="isPlacingOrder">
           {{ isPlacingOrder ? 'Placing Order...' : 'Place Order' }}
         </button>
@@ -48,7 +49,8 @@
   </div>
 </template>
 
-<script>import { API_BASE_URL } from '@/config';
+<script>
+import { API_BASE_URL } from '@/config';
 
 export default {
   data() {
@@ -68,7 +70,7 @@ export default {
       },
       error: '',
       isPlacingOrder: false,
-      cartItems: [], // Add cartItems to data
+      cartItems: [],
     };
   },
   computed: {
@@ -77,12 +79,24 @@ export default {
     },
   },
   async created() {
-    await this.fetchCart(); // Fetch cart items when the component is created
+    await this.fetchCart();
   },
   methods: {
     goToStep(step) {
+      // No validation here, just change steps
+      this.error = ''; // Clear any previous errors
       this.step = step;
     },
+
+    validateAndProceed() {
+      // This function is called when the payment form is submitted
+      this.error = ''; // Clear any previous errors
+      
+      if (this.validatePaymentDetails()) {
+        this.goToStep(3);
+      }
+    },
+
     async fetchCart() {
       try {
         const token = localStorage.getItem('token');
@@ -99,6 +113,46 @@ export default {
         this.cartItems = [];
       }
     },
+
+    validatePaymentDetails() {
+      // Validate Card Number (9-11 digits)
+      const cardNumberRegex = /^\d{9,11}$/;
+      if (!cardNumberRegex.test(this.payment.cardNumber)) {
+        this.error = 'Card number must be between 9 and 11 digits.';
+        return false;
+      }
+
+      // Validate Expiry Date (MM/YY format and not expired)
+      const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+      if (!expiryRegex.test(this.payment.expiry)) {
+        this.error = 'Expiry date must be in MM/YY format.';
+        return false;
+      }
+
+      // Check if expiry date is in the future
+      const [month, year] = this.payment.expiry.split('/');
+      const expiryMonth = parseInt(month, 10);
+      const expiryYear = parseInt(`20${year}`, 10); // Convert YY to YYYY
+      
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
+      const currentYear = currentDate.getFullYear();
+      
+      if (expiryYear < currentYear || (expiryYear === currentYear && expiryMonth < currentMonth)) {
+        this.error = 'Expiry date cannot be in the past.';
+        return false;
+      }
+
+      // Validate CVV (exactly 3 digits)
+      const cvvRegex = /^\d{3}$/;
+      if (!cvvRegex.test(this.payment.cvv)) {
+        this.error = 'CVV must be exactly 3 digits.';
+        return false;
+      }
+
+      return true; // All validations passed
+    },
+
     async placeOrder() {
       this.error = '';
       this.isPlacingOrder = true;
@@ -113,11 +167,11 @@ export default {
         const order = {
           shipping: this.shipping,
           payment: this.payment,
-          items: this.cartItems, // Use this.cartItems instead of this.$store.getters['cart/cartItems']
+          items: this.cartItems,
           total: this.cartTotal,
         };
 
-        console.log('Order Payload:', order); // Log the payload
+        console.log('Order Payload:', order);
 
         const response = await fetch(`${API_BASE_URL}/orders`, {
           method: 'POST',
@@ -133,7 +187,6 @@ export default {
           throw new Error(data.error || 'Failed to place order');
         }
 
-        // Clear cart and redirect to confirmation page
         this.$store.dispatch('cart/clearCart');
         this.$router.push({ path: `/order-confirmation/${this.order_id}` });
       } catch (err) {
@@ -146,35 +199,114 @@ export default {
 };
 </script>
 
+
+
+
+
 <style scoped>
 .checkout-container {
-  max-width: 800px;
+  max-width: 750px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px 20px;
+  font-family: 'Arial', sans-serif;
+  padding-top: 100px;
+}
+
+h2, h3 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 .checkout-steps {
-  margin-top: 20px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .checkout-step {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+form {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
+}
+
+input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Gradient Button for "Next" */
+button {
+  width: 105.5%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Gradient Effect */
+button[type="submit"] {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: #fff;
+}
+
+button[type="submit"]:hover {
+  background: linear-gradient(45deg, #0056b3, #003f80);
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .order-summary {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
   border: 1px solid #ddd;
   padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  background: #f9f9f9;
 }
 
 .order-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.order-item:last-child {
+  border-bottom: none;
 }
 
 .error-message {
+  text-align: center;
   color: #ff4d4d;
+  font-weight: bold;
   margin-top: 15px;
 }
+
 </style>
