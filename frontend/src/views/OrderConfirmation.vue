@@ -9,7 +9,7 @@
       <div v-if="order" class="order-details">
         <h3>Order Details</h3>
         <p><strong>Order ID:</strong> {{ order.order_id }}</p>
-        <p><strong>Total:</strong> ${{ Number(order.total).toFixed(2) }}</p>
+        <p><strong>Total:</strong> R{{ Number(order.total).toFixed(2) }}</p>
         <p><strong>Status:</strong> {{ order.status || 'Pending' }}</p>
 
         <!-- Display order items -->
