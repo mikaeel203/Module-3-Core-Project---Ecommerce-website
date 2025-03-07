@@ -100,48 +100,59 @@ export default {
       }
     },
     async placeOrder() {
-      this.error = '';
-      this.isPlacingOrder = true;
+    this.error = '';
+    this.isPlacingOrder = true;
 
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          this.$router.push('/login');
-          return;
-        }
-
-        const order = {
-          shipping: this.shipping,
-          payment: this.payment,
-          items: this.cartItems, // Use this.cartItems instead of this.$store.getters['cart/cartItems']
-          total: this.cartTotal,
-        };
-
-        console.log('Order Payload:', order); // Log the payload
-
-        const response = await fetch(`${API_BASE_URL}/orders`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify(order),
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to place order');
-        }
-
-        // Clear cart and redirect to confirmation page
-        this.$store.dispatch('cart/clearCart');
-        this.$router.push({ path: `/order-confirmation/${order.order_id}` });
-      } catch (err) {
-        this.error = err.message || 'An error occurred. Please try again.';
-      } finally {
-        this.isPlacingOrder = false;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.$router.push('/login');
+        return;
       }
-    },
+
+      const order = {
+        shipping: this.shipping,
+        payment: this.payment,
+        items: this.cartItems,
+        total: this.cartTotal,
+      };
+
+      const response = await fetch(`${API_BASE_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(order),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to place order');
+      }
+
+      const orderData = await response.json();
+
+      // Debugging: Log before clearing the cart
+      console.log('Clearing cart...');
+
+      // Clear the cart
+      await this.$store.dispatch('cart/clearCart');
+
+      // Debugging: Log after clearing the cart
+      console.log('Cart cleared.');
+
+      // Redirect to the order confirmation page
+      this.$router.push({
+        path: `/order-confirmation/${orderData.order_id}`,
+        query: { order: JSON.stringify(orderData) },
+      });
+    } catch (err) {
+      this.error = err.message || 'An error occurred. Please try again.';
+    } finally {
+      this.isPlacingOrder = false;
+    }
+  },
   },
 };
 </script>

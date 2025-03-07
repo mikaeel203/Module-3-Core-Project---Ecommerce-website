@@ -4,6 +4,7 @@ import { API_BASE_URL } from '@/config';
 const store = createStore({
   modules: {
     cart: {
+      namespaced: true, // Ensure the module is namespaced
       state: {
         items: [], // Array of cart items
         loading: false, // Loading state for cart operations
@@ -30,6 +31,7 @@ const store = createStore({
           }
         },
         CLEAR_CART(state) {
+          console.log('Clearing cart items...'); // Debugging
           state.items = [];
         },
         SET_LOADING(state, isLoading) {
@@ -119,7 +121,8 @@ const store = createStore({
           }
         },
         clearCart({ commit }) {
-          commit('CLEAR_CART');
+          console.log('Dispatching clearCart action...'); // Debugging
+          commit('CLEAR_CART'); // Clear the cart
         },
       },
       getters: {
@@ -131,32 +134,6 @@ const store = createStore({
         },
         isLoading(state) {
           return state.loading;
-        },
-      },
-    },
-    wishlist: {
-      state: {
-        items: [], // Array of wishlist items
-      },
-      mutations: {
-        ADD_TO_WISHLIST(state, product) {
-          state.items.push(product);
-        },
-        REMOVE_FROM_WISHLIST(state, productId) {
-          state.items = state.items.filter((item) => item.id !== productId);
-        },
-      },
-      actions: {
-        addToWishlist({ commit }, product) {
-          commit('ADD_TO_WISHLIST', product);
-        },
-        removeFromWishlist({ commit }, productId) {
-          commit('REMOVE_FROM_WISHLIST', productId);
-        },
-      },
-      getters: {
-        wishlistItems(state) {
-          return state.items;
         },
       },
     },
