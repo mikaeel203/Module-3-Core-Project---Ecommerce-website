@@ -52,8 +52,9 @@ export default {
   color: white;
   padding: 60px ;
   margin-top: 40px;
-  width: 1225px;
+  width: 100%;
   font-family: "Arial", sans-serif;
+  
 }
 
 .footer-sections {
