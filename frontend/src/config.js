@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'http://localhost:3000/api';
+export const API_BASE_URL = 'https://module-3-core-project-ecommerce-website-6gpq.vercel.app/api';
